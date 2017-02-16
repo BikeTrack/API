@@ -1,0 +1,41 @@
+{
+  "name": "apibiketrack",
+  "version": "0.4.0",
+  "description": "BikeTrack API with test with BDD with Mocha/Chai",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./app.js",
+    "test": "mocha"
+  },
+  "keywords": [
+    "biketrack",
+    "api",
+    "moka",
+    "chai",
+    "node",
+    "express",
+    "mongodb"
+  ],
+  "author": "Gil Felot",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^1.0.2",
+    "body-parser": "^1.15.2",
+    "cors": "^2.8.1",
+    "debug": "^2.6.0",
+    "dotenv": "^4.0.0",
+    "express": "^4.14.0",
+    "helmet": "^3.3.0",
+    "jsonwebtoken": "^7.2.1",
+    "lodash": "^4.17.4",
+    "mongoose": "^4.7.6",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0"
+  }
+}
