@@ -307,7 +307,6 @@ function addBike(req, res) {
       res.end()
     }
 
-
     const newBike = new Bike({
       name: bike.name,
       color: bike.color,
