@@ -4,7 +4,7 @@ ____________
 ## Get started
 
 ### Prerequisite
->Node (v7) and NPM already installed on your computer.
+>Node (tested with v6 and v7) and NPM already installed on your computer.
 
 ```javascript
 if (!node) {
@@ -16,13 +16,13 @@ if (!node) {
 
 ### Clone the depot
 ```bash
-cd whereYouWannaClone
+cd where/you/want
 git clone git@github.com:BikeTrack/API.git
 ```
 
 ### Install the libraries
 ```bash
-cd rootOfProject
+cd where/you/want/API
 npm install
 ```
 
