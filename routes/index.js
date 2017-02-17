@@ -396,5 +396,4 @@ function updateSettings(req, res) {
   res.json({ Test: '1234' })
 }
 
-
 module.exports = router

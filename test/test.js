@@ -14,6 +14,7 @@ const server = require('../app');
 const expect = chai.expect;
 chai.use(chaiHttp);
 
+
 describe('Test server', () => {
 
   it('should have a JSON {foo:\'bar\'} !', (done) => {
