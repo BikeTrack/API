@@ -1,6 +1,9 @@
 # API
 Fourth version of our API for the EIP (Epitech Innovating Project) named : BikeTrack.
 ____________
+
+[![Build Status](https://travis-ci.org/BikeTrack/API.svg?branch=master)](https://travis-ci.org/BikeTrack/API)
+
 ## Get started
 
 ### Prerequisite
