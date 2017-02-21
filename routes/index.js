@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const mongoose = require('mongoose');
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
@@ -7,7 +8,9 @@ const Bike = require('../db_models/bike')
 // Test
 router.get('/', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  res.json({ foo: 'bar' })
+  res.json(
+    { foo: 'bar'}
+  )
   // res.send('Hello, World!')
 })
 
@@ -15,7 +18,7 @@ router.post('/signup', signup) // Crud login
 router.post('/authenticate', login) // cRud login
 router.delete('/profile/', deleteProfile) // cruD login
 router.get('/profile/:userId', getProfile) // cRud login
-router.put('/profile/:userId', update) // crUd login
+router.put('/profile/', update) // crUd login
 
 // router.post('/authenticate/facebook', authFacebook) // crUd* login
 // router.post('/authenticate/google', authGoogle) // crUd* login
@@ -157,11 +160,47 @@ function login(req, res) {
   })
 }
 
-// router.delete('/profile/', deleteProfile)
-function deleteProfile(req, res) {
-  const userId = req.body.userId
+// router.get('/profile/:userId', getProfile)
+function getProfile(req, res) {
+  const userId = mongoose.Types.ObjectId(req.params.userId)
 
-  User.findByIdAndRemove(userId, err => {
+  User.findById(userId, "-password", (err, user) => {
+    if (err) {
+      console.log(err);
+      res.status(404)
+      res.json({
+        success: false,
+        err
+      })
+      res.end()
+      return
+    }
+
+    if (!user) {
+      res.status(400)
+      res.json({
+        success: false,
+        message: `Cannot find an User with the userId: ${userId}`
+      })
+      res.end()
+      return
+    }
+
+    res.json({
+      success: true,
+      user: user
+    })
+    res.end()
+    return
+  })
+}
+
+// router.put('/profile/', update)
+function update(req, res) {
+  const userId = mongoose.Types.ObjectId(req.body.userId)
+  const update = req.body.update
+
+  User.findByIdAndUpdate(userId, update, { new: true, select: '-password' },  (err, newUser) => {
     if (err) {
       res.json({
         success: false,
@@ -170,6 +209,51 @@ function deleteProfile(req, res) {
       res.end()
       return
     }
+
+    if (!newUser) {
+      res.status(401)
+      res.json({
+        success: false,
+        message: `Cannot find an User with the userId: ${userId}`
+      })
+      res.end()
+      return
+    }
+
+    res.json({
+      success: true,
+      user: newUser,
+      message: `User userId :${userId} have been updated.`
+    })
+    res.end()
+    return
+  })
+}
+
+// router.delete('/profile/', deleteProfile)
+function deleteProfile(req, res) {
+  const userId = req.body.userId
+
+  User.findByIdAndRemove(userId, (err, user) => {
+    if (err) {
+      res.json({
+        success: false,
+        err
+      })
+      res.end()
+      return
+    }
+
+    if (!user) {
+      res.status(401)
+      res.json({
+        success: false,
+        message: `Cannot find an User with the userId: ${userId}`
+      })
+      res.end()
+      return
+    }
+
     res.json({
       success: true,
       message: `User with userId:${userId} have been remove from the DB`
@@ -179,57 +263,6 @@ function deleteProfile(req, res) {
   })
 }
 
-// router.put('/profile/:userId', update)
-function update(req, res) {
-  const userId = req.params.userId
-  const update = req.body.update
-
-  User.findByIdAndUpdate(userId, update, err => {
-    if (err) {
-      res.json({
-        success: false,
-        err
-      })
-      res.end()
-    }
-
-    res.json({
-      success: true,
-      message: `User userId :${userId} have been updated.`
-    })
-    res.end()
-  })
-}
-
-// router.get('/profile/:userId', getProfile)
-function getProfile(req, res) {
-  const userId = req.params.userId
-
-  User.findById(userId, "-password", (err, user) => {
-    if (err) {
-      res.json({
-        success: false,
-        err
-      })
-      res.end()
-    }
-
-    if (!user) {
-      res.json({
-        success: false,
-        message: `Cannot find an User with the userId: ${userId}`
-      })
-      res.end()
-    }
-
-    res.json({
-      success: true,
-      user: user
-    })
-    res.end()
-
-  })
-}
 
 // function authFacebook(req, res) {
 //   res.setHeader('Content-Type', 'application/json')
