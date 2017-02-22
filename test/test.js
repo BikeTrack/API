@@ -1,25 +1,26 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = 'test'
 process.env.PORT = '3001'
 
 const chai = require('chai');
-// import chai from 'chai'
 const chaiHttp = require('chai-http');
-// import chaiHttp from 'chai-http'
-const mongoose = require('mongoose');
-// import mongoose from 'mongoose'
 const server = require('../app');
-// import server from '../app'
+
+const User = require('../db_models/user')
+const Bike = require('../db_models/bike')
 
 // const should = chai.should();
 const expect = chai.expect;
 chai.use(chaiHttp);
 
+const apiKey = process.env.API_KEY_APP
 
-describe('Test server', () => {
 
-  it('should have a JSON {foo:\'bar\'} !', (done) => {
+describe('Test if server is up', function() {
+
+  it('should have a JSON {foo:\'bar\'} !', function(done) {
     chai.request(server)
     .get('/')
+    .set('Authorization', apiKey)
     .end((err, res) => {
       expect(res).to.have.status(200)
       expect(res).to.be.an("object")
@@ -30,18 +31,32 @@ describe('Test server', () => {
   })
 })
 
-describe('Test user signup and login', () => {
+describe('Test User response to database', function() {
 
   const mail = 'john_doe@biketrack.eu'
   const password = 'qwerty123'
   let userId = ""
-  const unknownId = "1234567890abcdef12345678"
+  let token = ""
 
+  before("Delete User to DB if any at start", function() {
+    User.findOneAndRemove({'mail': mail}, err => {
+      if (err) return console.log(err)
+      console.log('User deleted');
+    })
+  })
 
-  describe('Test /signup route' , () => {
-    it('shouldn\'t be able to log without a password\n', (done) => {
+  after("Delete User to DB if any at the end", function() {
+    User.findOneAndRemove({'mail': mail}, err => {
+      if (err) return console.log(err)
+      console.log('User deleted');
+    })
+  })
+
+  describe('Test /signup route' , function() {
+    it('shouldn\'t be able to log without a password\n', function(done) {
       chai.request(server)
       .post('/signup')
+      .set('Authorization', apiKey)
       .send({
         'mail': mail,
         'password': ""
@@ -52,9 +67,10 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('shouldn\'t be able to log without a mail\n', (done) => {
+    it('shouldn\'t be able to log without a mail\n', function(done) {
       chai.request(server)
       .post('/signup')
+      .set('Authorization', apiKey)
       .send({
         'mail': "",
         'password': password
@@ -65,11 +81,12 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('should signup for John Doe\n', (done) => {
+    it('should signup for John Doe\n', function(done) {
       chai.request(server)
       .post('/signup')
+      .set('Authorization', apiKey)
       .send({
-        'mail': 'john_doe@biketrack.eu',
+        'mail': mail,
         'password': password
       })
       .end((err, res) => {
@@ -79,11 +96,12 @@ describe('Test user signup and login', () => {
     })
   })
 
-  describe('Test /authenticate route', () => {
+  describe('Test /authenticate route', function() {
 
-    it('shouldn\'t be able to login without a mail', (done) => {
+    it('shouldn\'t be able to login without a mail', function(done) {
       chai.request(server)
       .post('/authenticate')
+      .set('Authorization', apiKey)
       .send({
         'mail': "",
         'password': password
@@ -94,9 +112,10 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('shouldn\'t be able to login without a password', (done) => {
+    it('shouldn\'t be able to login without a password', function(done) {
       chai.request(server)
       .post('/authenticate')
+      .set('Authorization', apiKey)
       .send({
         'mail': mail,
         'password': ""
@@ -107,9 +126,10 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('shouldn\'t be able to login an unknown mail', (done) => {
+    it('shouldn\'t be able to login an unknown mail', function(done) {
       chai.request(server)
       .post('/authenticate')
+      .set('Authorization', apiKey)
       .send({
         'mail': "yolo@epitech.eu",
         'password': password
@@ -120,9 +140,10 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('shouldn\'t be able to login a wrong password', (done) => {
+    it('shouldn\'t be able to login a wrong password', function(done) {
       chai.request(server)
       .post('/authenticate')
+      .set('Authorization', apiKey)
       .send({
         'mail': mail,
         'password': "password"
@@ -133,9 +154,10 @@ describe('Test user signup and login', () => {
       })
     })
 
-    it('should login John Doe\n', (done) => {
+    it('should login John Doe\n', function(done) {
       chai.request(server)
       .post('/authenticate')
+      .set('Authorization', apiKey)
       .send({
         'mail': mail,
         'password': password
@@ -143,37 +165,44 @@ describe('Test user signup and login', () => {
       .end((err, res) => {
         const text = JSON.parse(res.text)
         userId = text.userId
+        token = text.token
         expect(res).to.have.status(200)
         done()
       })
     })
   })
 
-  describe('Test /profile route', () => {
+  describe('Test /profile route', function() {
 
-    it('shouldn\'t find John Doe\'s profile with a wrong ID\n', (done) => {
+    it('shouldn\'t find John Doe\'s profile with a wrong ID\n', function(done) {
       chai.request(server)
-      .get('/profile/${unknownId}')
+      .get(`/profile/1`)
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
       .end((err, res) => {
         expect(res).to.have.status(400)
         done()
       })
     })
 
-    it('should find John Doe\'s profile with ID\n', (done) => {
+    it('should find John Doe\'s profile with ID\n', function(done) {
       chai.request(server)
       .get(`/profile/${userId}`)
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
       .end((err, res) => {
         expect(res).to.have.status(200)
         done()
       })
     })
 
-    it('should not update with a unknown userId\n', (done) => {
+    it('should not update with a unknown userId\n', function(done) {
       chai.request(server)
       .put('/profile')
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
       .send({
-        'userId': unknownId,
+        'userId': '1',
         'update': {'name' : 'John Doe'}
       })
       .end((err, res) => {
@@ -182,9 +211,11 @@ describe('Test user signup and login', () => {
         })
     })
 
-    it('should update John Doe\'s profile his name\n', (done) => {
+    it('should update John Doe\'s profile his name\n', function(done) {
       chai.request(server)
       .put('/profile')
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
       .send({
         'userId': userId,
         'update': {'name' : 'John Doe', 'toto':'titi'}
@@ -199,19 +230,23 @@ describe('Test user signup and login', () => {
         })
     })
 
-    it('should not delete a profile with an unknown userId\n', (done) => {
+    it('should not delete a profile with an unknown userId\n', function(done) {
       chai.request(server)
       .delete('/profile')
-      .send({'userId': unknownId})
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
+      .send({'userId': '1'})
       .end((err, res) => {
         expect(res).to.have.status(401)
         done()
       })
     })
 
-    it('should delete John Doe\'s profile\n', (done) => {
+    it('should delete John Doe\'s profile\n', function(done) {
       chai.request(server)
       .delete('/profile')
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
       .send({'userId': userId})
       .end((err, res) => {
         expect(res).to.have.status(200)
@@ -220,5 +255,29 @@ describe('Test user signup and login', () => {
     })
 
   })
+
+})
+
+describe('Test /bike/* route', function() {
+
+  const user = new User({
+    mail: 'john_doe@biketrack.eu',
+    password: 'qwerty123'
+  })
+
+  before("Add a Fake User to DB to simulate the action", function() {
+    user.save( err => {
+      if (err) return console.log(err);
+      console.log(user);
+    })
+  })
+
+  after("Delete fake User to DB", function() {
+    User.findOneAndRemove(user.mail, err => {
+      if (err) return console.log(err)
+      console.log('User deleted');
+    })
+  })
+
 
 })

@@ -1,9 +1,13 @@
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const router = express.Router()
-const mongoose = require('mongoose');
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
+const config = require('../config/');
+
+// const apiKey = require('../config/apiKey');
+// router.use(apiKey);
 
 // Test
 router.get('/', (req, res) => {
@@ -16,9 +20,38 @@ router.get('/', (req, res) => {
 
 router.post('/signup', signup) // Crud login
 router.post('/authenticate', login) // cRud login
-router.delete('/profile/', deleteProfile) // cruD login
+
+router.use((req, res, next) => {
+  // check header or url parameters or post parameters for token
+  let token = req.headers['x-access-token'];
+
+  // decode token
+  if (token) {
+    // verifies secret and checks exp
+    jwt.verify(token, config.jwt.secret, (err, decoded) => {
+      if (err) {
+        return res.json({ success: false, message: 'Failed to authenticate token.' });
+      } else {
+        // if everything is good, save to request for use in other routes
+        req.decoded = decoded;
+        next();
+      }
+    });
+
+  } else {
+
+    // if there is no token
+    // return an error
+    return res.status(403).send({
+        success: false,
+        message: 'No token provided.'
+    });
+  }
+})
+
 router.get('/profile/:userId', getProfile) // cRud login
 router.put('/profile/', update) // crUd login
+router.delete('/profile/', deleteProfile) // cruD login
 
 // router.post('/authenticate/facebook', authFacebook) // crUd* login
 // router.post('/authenticate/google', authGoogle) // crUd* login
@@ -41,7 +74,7 @@ router.put('/settings/:id', updateSettings)
 function signup(req, res) {
   const mail = req.body.mail
   const password = req.body.password //sha256 or bcrypt
-  console.log(`Mail : ${mail}\nPassword : ${password}\n`)
+
   if (!mail || !password) {
     res.status(404)
     res.json({
@@ -146,11 +179,17 @@ function login(req, res) {
         res.end()
         return
       } else {
-        const tempToken = "1234567890"
+
+        // if user is found and password is right
+        // create a token
+        const token = jwt.sign(user, config.jwt.secret, {
+          expiresIn: "24h", // expires in 24 hours
+          algorithm: 'HS512'
+        });
+
         res.json({
           success: true,
-          Test: '1234',
-          Token: tempToken,
+          token: token,
           userId: user.id
         })
         res.end()
@@ -162,7 +201,7 @@ function login(req, res) {
 
 // router.get('/profile/:userId', getProfile)
 function getProfile(req, res) {
-  const userId = mongoose.Types.ObjectId(req.params.userId)
+  const userId = req.params.userId
 
   User.findById(userId, "-password", (err, user) => {
     if (err) {
@@ -197,7 +236,7 @@ function getProfile(req, res) {
 
 // router.put('/profile/', update)
 function update(req, res) {
-  const userId = mongoose.Types.ObjectId(req.body.userId)
+  const userId = req.body.userId
   const update = req.body.update
 
   User.findByIdAndUpdate(userId, update, { new: true, select: '-password' },  (err, newUser) => {

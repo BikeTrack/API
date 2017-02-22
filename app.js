@@ -6,11 +6,6 @@ const http          = require('http');
 const mongoose      = require('mongoose');
 const helmet        = require('helmet');
 const cors          = require('cors');
-const passport      = require('passport');
-const jwt           = require('jsonwebtoken');
-const passportJWT   = require('passport-jwt');
-const ExtractJwt    = passportJWT.ExtractJwt;
-const JwtStrategy   = passportJWT.Strategy;
 
 // Load .env file
 require('dotenv').config();
@@ -27,28 +22,23 @@ app.use(helmet.frameguard()); // Default Value - Help to secure request by putti
 app.use(cors());
 
 // Logfile
-// Add npm package
-// const log = require('./log/');
-// app.use(log);
+const log = require('./log/');
+app.use(log);
 //
 // API Key handler
-// const apiKey = require('./config/apiKey');
-// app.use(apiKey);
-
-// Passport JWT Strategy Test
-// const jwtConfig = require('./config/jwtConfig');
-// const strategy = require('./config/passport')(passport, jwtConfig, users);
+const apiKey = require('./config/apiKey');
+app.use(apiKey);
 
 // MongoDB config
-const DBconfig = require('./config/database');
+const config = require('./config/');
 mongoose.Promise = global.Promise
-mongoose.connect(DBconfig.mongoURI[app.settings.env], (err, res) => {
+mongoose.connect(config.mongoURI[app.settings.env], (err, res) => {
   if(err) {
     console.log('Error connecting to the database. ' + err);
   } else {
-    console.log('Connected to Database: ' + DBconfig.mongoURI[app.settings.env]);
+    console.log('Connected to Database: ' + config.mongoURI[app.settings.env]);
   }
-});
+})
 
 // Routes
 const routes = require('./routes/');

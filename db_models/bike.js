@@ -1,8 +1,10 @@
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 const Schema = mongoose.Schema
 
 const bikeSchema = new Schema({
+  _id: {type: String, 'default': shortid.generate},
   created: {type: Date, default: Date.now},
   updated: {type: Date, default: Date.now},
   name: String,

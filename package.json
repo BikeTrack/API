@@ -24,13 +24,13 @@
     "debug": "^2.6.0",
     "dotenv": "^4.0.0",
     "express": "^4.14.0",
+    "file-stream-rotator": "0.0.7",
     "helmet": "^3.3.0",
     "jsonwebtoken": "^7.2.1",
     "lodash": "^4.17.4",
     "mongoose": "^4.7.6",
     "morgan": "^1.7.0",
-    "passport": "^0.3.2",
-    "passport-jwt": "^2.2.1",
+    "shortid": "^2.2.6",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
