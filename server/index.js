@@ -2,7 +2,6 @@ const debug = require('debug');
 const http = require('http');
 
 module.exports = (app) => {
-console.log("test3");
   /**
   * Get port from environment and store in Express.
   */

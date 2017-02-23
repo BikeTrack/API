@@ -19,6 +19,7 @@
   "author": "Gil Felot",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "body-parser": "^1.15.2",
     "cors": "^2.8.1",
     "debug": "^2.6.0",

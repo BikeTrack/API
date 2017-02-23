@@ -1,8 +1,6 @@
 const auth = function (req, res, next) {
   const headerAuth = req.headers.authorization;
 
-  console.log(headerAuth);
-
   if (!headerAuth) {
     return res.status(403).json(
       {

@@ -40,14 +40,14 @@ describe('Test User response to database', function() {
 
   before("Delete User to DB if any at start", function() {
     User.findOneAndRemove({'mail': mail}, err => {
-      if (err) return console.log(err)
+      if (err) return err
       console.log('User deleted');
     })
   })
 
   after("Delete User to DB if any at the end", function() {
     User.findOneAndRemove({'mail': mail}, err => {
-      if (err) return console.log(err)
+      if (err) return err
       console.log('User deleted');
     })
   })
@@ -267,14 +267,14 @@ describe('Test /bike/* route', function() {
 
   before("Add a Fake User to DB to simulate the action", function() {
     user.save( err => {
-      if (err) return console.log(err);
+      if (err) return err
       console.log(user);
     })
   })
 
   after("Delete fake User to DB", function() {
     User.findOneAndRemove(user.mail, err => {
-      if (err) return console.log(err)
+      if (err) return err
       console.log('User deleted');
     })
   })

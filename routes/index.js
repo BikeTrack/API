@@ -4,7 +4,9 @@ const router = express.Router()
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
-const config = require('../config/');
+const config = require('../config/')
+const bcrypt = require('bcrypt')
+// const crypt = require('../config/crypt')
 
 // const apiKey = require('../config/apiKey');
 // router.use(apiKey);
@@ -43,8 +45,8 @@ router.use((req, res, next) => {
     // if there is no token
     // return an error
     return res.status(403).send({
-        success: false,
-        message: 'No token provided.'
+      success: false,
+      message: 'No token provided.'
     });
   }
 })
@@ -59,16 +61,16 @@ router.delete('/profile/', deleteProfile) // cruD login
 // router.put('/profile/google/:userId', addGoogle) // crUd* login
 
 router.get('/bike/list/:id', getBikeList) // get list ID [Bike], check details to bike DB
-router.post('/bike/:id', addBike) // Crud bike
-router.get('/bike/:id', getBikeInfo) // cRud bike
-router.put('/bike/:id', updateBike) // crUd bike
-router.delete('/bike/:id', deleteBike) // cruD bike
-router.delete('/tracker/:id', deleteTracker) // unpair tracker from a bike {id}
-router.put('/tracker/:id', updateTracker) // update tracker info from a bike
+router.post('/bike/', addBike) // Crud bike
+router.get('/bike/', getBikeInfo) // cRud bike
+router.put('/bike/', updateBike) // crUd bike
+router.delete('/bike/', deleteBike) // cruD bike
+router.delete('/tracker/', deleteTracker) // unpair tracker from a bike {id}
+router.put('/tracker/', updateTracker) // update tracker info from a bike
 router.get('/bike/:id/map', mapInfo) // get the last {map} info from a bike {id}
 router.post('/alert', alert) // send alert to server (don't know how to make it work)
-router.get('/settings/:id', getSettings)
-router.put('/settings/:id', updateSettings)
+router.get('/settings/', getSettings)
+router.put('/settings/', updateSettings)
 
 // router.post('/signup', signup)
 function signup(req, res) {
@@ -102,7 +104,6 @@ function signup(req, res) {
         mail: mail,
         password: password
       })
-
       newUser.save( err => {
         if (err) {
           res.status(400)
@@ -136,7 +137,7 @@ function signup(req, res) {
 // router.post('/authenticate', login)
 function login(req, res) {
   const mail = req.body.mail
-  const password = req.body.password //sha256 or bcrypt
+  const password = req.body.password
 
   if (!mail || !password) {
     res.status(404)
@@ -170,31 +171,40 @@ function login(req, res) {
       res.end()
       return
     } else if (user) {
-      if (user.password != password) {
-        res.status(401)
-        res.json({
-          success: false,
-          message: "Authentication failed. Wrong password."
-        })
-        res.end()
-        return
-      } else {
+      const testPassword = user.comparePassword(password, (err, isMatch) => {
+        if (err) {
+          res.status(400)
+          res.json({
+            success: false,
+            err
+          })
+          res.end()
+          return
+        } else if (!isMatch) {
+          res.status(401)
+          res.json({
+            success: false,
+            message: "Authentication failed. Wrong password."
+          })
+          res.end()
+          return
+        } else {
+          // if user is found and password is right
+          // create a token
+          const token = jwt.sign(user, config.jwt.secret, {
+            expiresIn: "24h", // expires in 24 hours
+            algorithm: 'HS512'
+          });
 
-        // if user is found and password is right
-        // create a token
-        const token = jwt.sign(user, config.jwt.secret, {
-          expiresIn: "24h", // expires in 24 hours
-          algorithm: 'HS512'
-        });
-
-        res.json({
-          success: true,
-          token: token,
-          userId: user.id
-        })
-        res.end()
-        return
-      }
+          res.json({
+            success: true,
+            token: token,
+            userId: user.id
+          })
+          res.end()
+          return
+        }
+      })
     }
   })
 }
