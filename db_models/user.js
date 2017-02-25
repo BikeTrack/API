@@ -19,8 +19,10 @@ const userSchema = new Schema({
 userSchema.pre('save', function(next){
     const user = this
 
+    const saltRound = Math.random() * (10 - 7) + 7; //random saltRound btw 7 - 14
+
     if (this.isModified('password') || this.isNew) {
-        bcrypt.genSalt(8, function(err, salt){
+        bcrypt.genSalt(saltRound, function(err, salt){
             if (err) return next(err)
             bcrypt.hash(user.password, salt, function(err, hash){
                 if (err) return next(err)

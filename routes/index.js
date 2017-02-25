@@ -80,6 +80,7 @@ function signup(req, res) {
   if (!mail || !password) {
     res.status(404)
     res.json({
+      success: false,
       message: "mail || login blank"
     })
     res.end()
@@ -142,6 +143,7 @@ function login(req, res) {
   if (!mail || !password) {
     res.status(404)
     res.json({
+      success: false,
       message: "mail || login blank"
     })
     res.end()
@@ -199,7 +201,8 @@ function login(req, res) {
           res.json({
             success: true,
             token: token,
-            userId: user.id
+            userId: user.id,
+            message: "Take my lord, this present is for you and only you"
           })
           res.end()
           return
