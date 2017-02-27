@@ -19,7 +19,7 @@ describe('\n => Test if server is up', function() {
 
   it(' -> should have a JSON {foo:\'bar\'} in the body', function(done) {
     chai.request(server)
-    .get('/test')
+    .get('/')
     .set('Authorization', apiKey)
     .end((err, res) => {
       expect(res).to.have.status(200)
@@ -35,7 +35,7 @@ describe('\n => Test API Key', function () {
 
   it(' -> should not accept a request without an API Key', function(done) {
     chai.request(server)
-    .get('/test')
+    .get('/')
     .end((err, res) => {
       expect(res).to.have.status(403)
       expect(res.body).to.include.keys('success');
@@ -46,7 +46,7 @@ describe('\n => Test API Key', function () {
 
   it(' -> should not accept a request with a wrong API Key', function(done) {
     chai.request(server)
-    .get('/test')
+    .get('/')
     .set('Authorization', 'wrongAPIKey!')
     .end((err, res) => {
       expect(res).to.have.status(403)
