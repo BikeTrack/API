@@ -81,7 +81,7 @@ function signup(req, res) {
     res.status(404)
     res.json({
       success: false,
-      message: "mail || login blank"
+      message: "Mail || Passowrd is blank"
     })
     res.end()
     return
@@ -116,7 +116,7 @@ function signup(req, res) {
         }
         res.json({
           success: true,
-          message: "Try to log now motherfucker"
+          message: "Try to login now motherfucker"
         })
         res.end()
         return

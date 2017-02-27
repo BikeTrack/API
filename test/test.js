@@ -1,9 +1,9 @@
 process.env.NODE_ENV = 'test'
 process.env.PORT = '3001'
 
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const server = require('../app');
+const chai = require('chai')
+const chaiHttp = require('chai-http')
+const server = require('../app')
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
@@ -19,7 +19,7 @@ describe('\n => Test if server is up', function() {
 
   it(' -> should have a JSON {foo:\'bar\'} in the body', function(done) {
     chai.request(server)
-    .get('/')
+    .get('/test')
     .set('Authorization', apiKey)
     .end((err, res) => {
       expect(res).to.have.status(200)
@@ -35,7 +35,7 @@ describe('\n => Test API Key', function () {
 
   it(' -> should not accept a request without an API Key', function(done) {
     chai.request(server)
-    .get('/')
+    .get('/test')
     .end((err, res) => {
       expect(res).to.have.status(403)
       expect(res.body).to.include.keys('success');
@@ -46,7 +46,7 @@ describe('\n => Test API Key', function () {
 
   it(' -> should not accept a request with a wrong API Key', function(done) {
     chai.request(server)
-    .get('/')
+    .get('/test')
     .set('Authorization', 'wrongAPIKey!')
     .end((err, res) => {
       expect(res).to.have.status(403)
@@ -92,7 +92,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         expect(res).to.have.status(404)
         expect(res.body).to.include.keys('success', 'message');
         expect(res.body).to.have.property('success', false);
-        expect(res.body).to.have.property('message', 'mail || login blank');
+        expect(res.body).to.have.property('message', 'Mail || Passowrd is blank');
         done()
       })
     })
@@ -109,7 +109,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         expect(res).to.have.status(404)
         expect(res.body).to.include.keys('success', 'message');
         expect(res.body).to.have.property('success', false);
-        expect(res.body).to.have.property('message', 'mail || login blank');
+        expect(res.body).to.have.property('message', 'Mail || Passowrd is blank');
         done()
       })
     })
@@ -126,7 +126,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         expect(res).to.have.status(200)
         expect(res.body).to.include.keys('success', 'message');
         expect(res.body).to.have.property('success', true);
-        expect(res.body).to.have.property('message', 'Try to log now motherfucker');
+        expect(res.body).to.have.property('message', 'Try to login now motherfucker');
         done()
       })
     })
