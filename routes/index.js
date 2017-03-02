@@ -60,7 +60,6 @@ router.delete('/profile/', deleteProfile) // cruD login
 // router.put('/profile/facebook/:userId', addFacebook) // crUd* login
 // router.put('/profile/google/:userId', addGoogle) // crUd* login
 
-router.get('/bike/list/:id', getBikeList) // get list ID [Bike], check details to bike DB
 router.post('/bike/', addBike) // Crud bike
 router.get('/bike/', getBikeInfo) // cRud bike
 router.put('/bike/', updateBike) // crUd bike
@@ -336,51 +335,9 @@ function deleteProfile(req, res) {
 //   res.json({ Test: '1234' })
 // }
 
-// router.get('/bike/list/:id', getBikeList)
-function getBikeList(req, res) {
-  const userId = req.params.userId
-
-  User.findById(userId, (err, user) => {
-    if (err) {
-      res.json({
-        success: false,
-        err
-      })
-      res.end()
-    }
-
-    const bikeList = user.bikes
-    if (bikeList.length() == 0) {
-      res.json({
-        success: false,
-        message: `The list is empty for userId: ${userId}`
-      })
-      res.end()
-    }
-    viewList = []
-    bikeList.forEach(bikeId => {
-      Bike.findById(bikeId, "name color brand", (err, bike) => {
-        if (err) {
-          res.json({
-            success: false,
-            err
-          })
-          res.end()
-        }
-        viewList.append(bike)
-      })
-    })
-    res.json({
-      success: true,
-      bikeList: viewList
-    })
-    res.end()
-  })
-}
-
-// router.post('/bike/:id', addBike)
+// router.post('/bike', addBike)
 function addBike(req, res) {
-  const userId = req.params.userId
+  const userId = req.body.userId
   const bike = req.body.bike
 
   User.findById(userId, (err, user) => {
@@ -390,6 +347,16 @@ function addBike(req, res) {
         err
       })
       res.end()
+    }
+
+    if (!user) {
+      res.status(401)
+      res.json({
+        success: false,
+        message: `Cannot find an User with the userId: ${userId}`
+      })
+      res.end()
+      return
     }
 
     const newBike = new Bike({
@@ -406,6 +373,7 @@ function addBike(req, res) {
           err
         })
         res.end()
+        return
       }
       const bikeList = user.bikes
       bikeList.append(b.id)

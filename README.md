@@ -6,7 +6,7 @@ ____________
 
 ## Get started
 
-### Prerequisite
+### 1. Prerequisite
 >Node (tested with v6 and v7) and NPM already installed on your computer.
 
 ```javascript
@@ -17,19 +17,26 @@ if (!node) {
 }
 ```
 
-### Clone the depot
+### 2. Clone the depot
 ```bash
 cd where/you/want
 git clone git@github.com:BikeTrack/API.git
 ```
 
-### Install the libraries
+### 3. Add Node-gyp for the cryptographic librarie
+> see https://github.com/nodejs/node-gyp for Prerequisite depending on the platforme
+
+```bash
+npm install -g node-gyp
+```
+
+### 4. Install the libraries
 ```bash
 cd where/you/want/API
 npm install
 ```
 
-### Environment Variable & Security
+### 5. Environment Variable & Security
 To secure the API we load some credential and an API Key as an environment variable.
 Thanks to the middleware dotenv included in `package.json` we can manage this easily.
 
@@ -49,8 +56,8 @@ MONGO_PASS=bar
 API_KEY_APP=1234567890
 ```
 
-### Run Project
-####3 ways
+### 6. Run Project
+#### 3 ways
 
 * Classic
 
