@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const shortid = require('shortid');
 
 const Schema = mongoose.Schema
 
 const trackerSchema = new Schema({
-    // _id: String,
+    _id: {type: String, 'default': shortid.generate},
     created: {
         type: Date,
         default: Date.now
@@ -17,6 +18,6 @@ const trackerSchema = new Schema({
     ]
 })
 
-const Bike = mongoose.model('Bike', bikeSchema)
+const Tracker = mongoose.model('Tracker', trackerSchema)
 
-module.exports =Bike
+module.exports = Tracker

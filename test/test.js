@@ -48,6 +48,15 @@ describe('\n => Test API Key', function() {
 
 })
 
+
+/*////////////////////////////
+//                          //
+//  Test on /profile route  //
+//                          //
+*/////////////////////////////
+
+
+
 describe('\n => Test if a user can register and login proprely', function() {
 
     const mail = 'john_doe@biketrack.eu'
@@ -236,6 +245,16 @@ describe('\n => Test if a user can register and login proprely', function() {
 
 })
 
+
+
+/*////////////////////////////
+//                          //
+//  Test on /bike route     //
+//                          //
+*/////////////////////////////
+
+
+
 describe('\n => Test /bike/* route', function() {
 
     const userTest = new User({mail: 'john_doe@biketrack.eu', password: 'qwerty123'})
@@ -278,7 +297,7 @@ describe('\n => Test /bike/* route', function() {
     })
 
     it("should add a bike a the user john_doe@biketrack.eu", function(done) {
-        chai.request(server).post('/bike').set('Authorization', apiKey).set('x-access-token', token).send({'userId': userId, 'bike': bikeTest}).end((err, res) => {
+        chai.request(server).post('/bike').set('Authorization', apiKey).set('x-access-token', token).send({'userId': userId, 'bikeInfo': bikeTest}).end((err, res) => {
             bikeId = res.body.bikeId
             expect(res).to.have.status(200)
             expect(res.body).to.include.keys('success', 'message');
@@ -322,6 +341,17 @@ describe('\n => Test /bike/* route', function() {
         })
     })
 
+
+/*////////////////////////////
+//                          //
+//  Test on /tracker route  //
+//                          //
+*/////////////////////////////
+
+
+
+
+
     describe('\n => Test /tracker/* route', function() {
 
         const userTest = new User({mail: 'john_doe@biketrack.eu', password: 'qwerty123'})
@@ -359,7 +389,11 @@ describe('\n => Test /bike/* route', function() {
         })
 
         it("should add a bike a the user john_doe@biketrack.eu", function(done) {
-            chai.request(server).post('/bike').set('Authorization', apiKey).set('x-access-token', token).send({'userId': userId, 'bike': bikeTest}).end((err, res) => {
+            chai.request(server).post('/bike')
+            .set('Authorization', apiKey)
+            .set('x-access-token', token)
+            .send({'userId': userId, 'bikeInfo': bikeTest})
+            .end((err, res) => {
                 bikeId = res.body.bikeId
                 expect(res).to.have.status(200)
                 expect(res.body).to.include.keys('success', 'message');
@@ -367,6 +401,10 @@ describe('\n => Test /bike/* route', function() {
                 done()
             })
         })
+
+        
+
+
     })
 
 })

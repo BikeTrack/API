@@ -4,6 +4,7 @@ const router = express.Router()
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
+const Tracker = require('../db_models/tracker')
 const config = require('../config/')
 const bcrypt = require('bcrypt')
 
@@ -59,9 +60,9 @@ router.post('/tracker', addTracker)
 router.delete('/tracker/', deleteTracker) // unpair tracker from a bike {id}
 router.patch('/tracker/', updateTracker) // update tracker info from a bike
 router.get('/bike/:id/map', mapInfo) // get the last {map} info from a bike {id}
-router.post('/alert', alert) // send alert to server (don't know how to make it work)
-router.get('/settings/', getSettings)
-router.put('/settings/', updateSettings)
+// router.post('/alert', alert) // send alert to server (don't know how to make it work)
+// router.get('/settings/', getSettings)
+// router.put('/settings/', updateSettings)
 
 // router.post('/signup', signup)
 function signup(req, res) {
@@ -261,7 +262,7 @@ function deleteProfile(req, res) {
 // router.post('/bike', addBike)
 function addBike(req, res) {
     const userId = req.body.userId
-    const bike = req.body.bike
+    const bikeInfo = req.body.bikeInfo
 
     User.findById(userId, (err, user) => {
         if (err) {
@@ -276,14 +277,15 @@ function addBike(req, res) {
             return
         }
 
-        if (!bike.tracker) {
+        if (!bikeInfo.tracker) {
             res.status(401)
             res.json({success: false, message: 'Bike must have a Tracker ID'})
             res.end()
             return
         }
 
-        const newBike = new Bike({name: bike.name, color: bike.color, brand: bike.brand, tracker: bike.tracker})
+        const newBike = new Bike(bikeInfo)
+        // const newBike = new Bike({name: bikeInfo.name, color: bikeInfo.color, brand: bikeInfo.brand, tracker: bikeInfo.tracker})
 
         newBike.save((err, b) => {
             if (err) {
@@ -350,7 +352,7 @@ function deleteBike(req, res) {
             return
         }
 
-        const newBikeList = user.bikes.filter(b => b !== bikeId)
+        const newBikeList = user.bikes.filter(bId => bId !== bikeId)
         if (newBikeList === user.bikes) {
             res.status(401)
             res.json({success: false, message: `Cannot find a bike with this ID : ${bikeId} for this User`})
@@ -360,7 +362,7 @@ function deleteBike(req, res) {
 
         user.update({
             bikes: newBikeList
-        }, (err) => {
+        }, err => {
             if (err) {
                 res.json({success: false, err})
                 res.end()
@@ -381,7 +383,10 @@ function deleteBike(req, res) {
                 return
             }
 
-            res.json({success: true, message: `Bike with bikeId:${bikeId} have been remove from the 2 DB`})
+            res.json({
+              success: true,
+              message: `Bike with bikeId: ${bikeId} have been remove from the 2 DB`
+            })
             res.end()
             return
 
@@ -394,15 +399,16 @@ function updateBike(req, res) {
     const bikeId = req.body.bikeId
     const update = req.body.update
 
-    Bike.findByIdAndUpdate(bikeId, update, {
-        new: true
-    }, (err, newBike) => {
+    Bike.findByIdAndUpdate(bikeId, update, {new: true}, (err, newBike) => {
         if (err) {
             res.json({success: false, err})
             res.end()
         } else if (!newBike) {
             res.status(401)
-            res.json({success: false, message: `No Bike with this ID ${bikeId} found`})
+            res.json({
+              success: false,
+              message: `No Bike with this ID ${bikeId} found`
+            })
             res.end()
             return
         }
@@ -416,20 +422,155 @@ function updateBike(req, res) {
 
 
 function addTracker(req, res) {
-  res.setHeader('Content-Type', 'application/json')
-  res.json({Test: '1234'})
+  const bikeId = req.body.BikeId
+  const trackerInfo = req.body.trackerInfo
+
+  Bike.findById(bikeId, (err, bike) => {
+    if (err) {
+        res.json({success: false, err})
+        res.end()
+    } else if (!bike) {
+      res.status(401)
+      res.json({
+        success: false,
+        message: `No Bike with this ID ${bikeId} found`
+      })
+      res.end()
+      return
+    } else {
+
+      const newTracker = new Tracker(trackerInfo)
+
+      newTracker.save((err, t) => {
+          if (err) {
+              res.json({success: false, err})
+              res.end()
+              return
+          }
+          const trackerList = bike.trackers
+          trackerList.push(t.id)
+          bike.update({
+              trackers: trackerList
+          }, err => {
+              if (err) {
+                  res.json({success: false, err})
+                  res.end()
+              }
+              res.json({success: true,
+                trackerId: t.id,
+                message: `Added Tracker: ${t.id} to Bike: ${bikeId}`})
+              res.end()
+          })
+      })
+
+    }
+  })
 }
 
 // router.delete('/tracker/', deleteTracker)
 function deleteTracker(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
+    const bikeId = req.body.bikeId
+    const trackerId = req.body.trackerId
+
+    Bike.findById(bikeId, (err, bike) => {
+      if (err) {
+
+          res.json({success: false, err})
+          res.end()
+          return
+
+      } else if (!bike){
+
+        res.status(401)
+        res.json({
+          success: false,
+          message: `No Bike with this ID ${bikeId} found`
+        })
+        res.end()
+        return
+
+      } else {
+
+        const newTrackerList = bike.trackers.filter(tId => tId !== trackerId)
+
+        if (newTrackerList === bike.trackers) {
+          res.status(401)
+          res.json({
+            success: false,
+            message: `Cannot find a tracker with this ID : ${trackerId} for this Bike`
+          })
+          res.end()
+          return
+        }
+
+        bike.update({
+          trackers: newTrackerList
+        }, err => {
+          if (err) {
+              res.json({success: false, err})
+              res.end()
+          }
+          console.log("Tracker deleted from Bike DB");
+        })
+
+
+        // Prefered a soft delete from the Database to keep inforamtion for futur data analysis.
+        // Tracker.findByIdAndRemove(trackerId, (err, tracker) => {
+        //   if (err) {
+        //       res.json({success: false, err})
+        //       res.end()
+        //   }
+        //
+        //   if (!tracker) {
+        //       res.status(401)
+        //       res.json({
+        //         success: false,
+        //         message: `Tracker was found and deleted from the Bike DB but not found in Tracker DB`
+        //       })
+        //       res.end()
+        //       return
+        //   }
+        //
+        //   res.json({
+        //     success: true,
+        //     message: `Tracker with trackerId: ${trackerId} have been remove from the 2 DB`
+        //   })
+        //   res.end()
+        //   return
+        // })
+      }
+    })
 }
 
-// router.put('/tracker/:id', updateTracker)
+// router.patch('/tracker/:id', updateTracker)
 function updateTracker(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
+    const trackerId = req.body.trackerId
+    const gps = req.body.gps
+
+    // add check on gps valid format
+
+    Tracker.findById(trackerId, gps, {new: true}, (err, newTracker) => {
+      if (err) {
+          res.json({success: false, err})
+          res.end()
+      } else if (!newTracker) {
+        res.status(401)
+        res.json({
+          success: false,
+          message: `No Tracker with this ID ${trackerId} found`
+        })
+        res.end()
+        return
+      }
+
+      res.json({
+        success: true,
+        bike: newTracker,
+        message: `Tracker updated`
+      })
+      res.end()
+      return
+    })
 }
 
 // router.get('/bike/:id/map', mapInfo)
