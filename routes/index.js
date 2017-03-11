@@ -414,6 +414,12 @@ function updateBike(req, res) {
     })
 }
 
+
+function addTracker(req, res) {
+  res.setHeader('Content-Type', 'application/json')
+  res.json({Test: '1234'})
+}
+
 // router.delete('/tracker/', deleteTracker)
 function deleteTracker(req, res) {
     res.setHeader('Content-Type', 'application/json')
