@@ -45,28 +45,6 @@ const routes = require('./routes/');
 
 app.use(routes);
 
-function normalizePort(val) {
-  const port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-  return false;
-}
-
-// Get port from environment and store in Express.
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-// Create HTTP server
-const server = http.createServer(app);
-server.listen(port);
-
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = new Error('Not Found')

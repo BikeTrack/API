@@ -2,9 +2,9 @@
   "name": "apibiketrack",
   "version": "0.4.0",
   "description": "BikeTrack API with test with BDD with Mocha/Chai",
-  "main": "app.js",
+  "main": "www/index.js",
   "scripts": {
-    "start": "node ./app.js",
+    "start": "node ./www/index.js",
     "test": "mocha"
   },
   "keywords": [
@@ -37,6 +37,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "request": "^2.79.0"
   }
 }

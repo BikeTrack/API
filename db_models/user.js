@@ -13,7 +13,7 @@ const userSchema = new Schema({
   password: {type: String, required: true},
   google: String,
   facebook: String,
-  bikes: [Number]
+  bikes: [String]
 })
 
 userSchema.pre('save', function(next){

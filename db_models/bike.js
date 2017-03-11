@@ -10,7 +10,7 @@ const bikeSchema = new Schema({
   name: String,
   color: String,
   brand: String,
-  tracker: {type: Number, index: true},
+  tracker: {type: String, index: true},
   // picture: {type: ???}
   // gps: [{type: Schema.Types.Point}]
 

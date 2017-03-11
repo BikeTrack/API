@@ -75,7 +75,7 @@ API_KEY_APP=1234567890
 > if [PM2](http://pm2.keymetrics.io) is not installed first :
 `npm install -g pm2`
 
-`pm2 start app.js`
+`pm2 start www/`
 
 ### Unit Test
 
