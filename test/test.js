@@ -7,6 +7,7 @@ const server = require('../server/index')
 
 const User = require('../db_models/user')
 const Bike = require('../db_models/bike')
+const Tracker = require('../db_models/tracker')
 
 const expect = chai.expect;
 chai.use(chaiHttp);
@@ -45,7 +46,6 @@ describe('\n => Test API Key', function() {
             done()
         })
     })
-
 })
 
 
@@ -117,10 +117,10 @@ describe('\n => Test if a user can register and login proprely', function() {
 
         it(' -> should not be able to signup again with the same email\n', function(done) {
             chai.request(server).post('/signup').set('Authorization', apiKey).send({'mail': mail, 'password': password}).end((err, res) => {
-                expect(res).to.have.status(401)
+                expect(res).to.have.status(409)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'User already in the DB.');
+                expect(res.body).to.have.property('message', 'User already in the DB');
                 done()
             })
         })
@@ -257,7 +257,10 @@ describe('\n => Test if a user can register and login proprely', function() {
 
 describe('\n => Test /bike/* route', function() {
 
-    const userTest = new User({mail: 'john_doe@biketrack.eu', password: 'qwerty123'})
+    const userTest = new User({
+      mail: 'bike@biketrack.eu',
+      password: 'qwerty123'
+    })
     const bikeTest = {
         name: "My Bike",
         color: "Red",
@@ -268,30 +271,33 @@ describe('\n => Test /bike/* route', function() {
     let bikeId = ""
     let token = ""
 
-    // const port = process.env.PORT;
-    // server.set('port', port);
-    // const launchedServer = http.createServer(server);
-    // server.listen(port);
 
     before("Add a Fake User to DB to simulate the action", function(done) {
 
-        userTest.save((err, data) => {
-            if (err)
-                return done(err)
-            userId = data._id
+      userTest.save((err, data) => {
+        if (err)
+            return done(err)
+        userId = data._id
 
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': userTest.mail, 'password': 'qwerty123'}).end((err, res) => {
-                token = res.body.token
-                done()
-            })
+        chai.request(server)
+        .post('/authenticate')
+        .set('Authorization', apiKey)
+        .send({
+          'mail': userTest.mail,
+          'password': 'qwerty123' // /!\ But WTF userTest.password isn't working !!!!!!!!
         })
+        .end((err, res) => {
+          token = res.body.token
+          done()
+        })
+      })
     })
 
     after("Delete fake User to DB", function(done) {
         User.findOneAndRemove(userTest.mail, err => {
             if (err)
                 return done(err)
-            console.log('User deleted');
+            console.log('User deleted from /bike test');
             done()
         })
     })
@@ -316,30 +322,44 @@ describe('\n => Test /bike/* route', function() {
     })
 
     it("should update the previous recorded bike info", function(done) {
-        chai.request(server).patch(`/bike/`).set('Authorization', apiKey).set('x-access-token', token).send({
-            'bikeId': bikeId,
-            'update': {
-                'color': 'Black'
-            }
-        }).end((err, res) => {
-            expect(res).to.have.status(200)
-            expect(res.body).to.include.keys('success');
-            expect(res.body).to.have.property('success', true);
-            expect(res.body).to.include.keys('bike');
-            expect(res.body).to.deep.property('bike.color', 'Black');
-            // expect(res.body).to.have.property('color', 'Black');
-            done()
-        })
+      chai.request(server)
+      .patch(`/bike/`)
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
+      .send({
+          'bikeId': bikeId,
+          'update': {
+              'color': 'Black'
+          }
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(200)
+        expect(res.body).to.include.keys('success');
+        expect(res.body).to.have.property('success', true);
+        expect(res.body).to.include.keys('bike');
+        expect(res.body).to.deep.property('bike.color', 'Black');
+        // expect(res.body).to.have.property('color', 'Black');
+        done()
+      })
     })
 
     it("should delete the previous recorded bike info", function(done) {
-        chai.request(server).delete(`/bike/`).set('Authorization', apiKey).set('x-access-token', token).send({'userId': userId, 'bikeId': bikeId}).end((err, res) => {
-            expect(res).to.have.status(200)
-            expect(res.body).to.include.keys('success');
-            expect(res.body).to.have.property('success', true);
-            done()
-        })
+      chai.request(server)
+      .delete(`/bike/`)
+      .set('Authorization', apiKey)
+      .set('x-access-token', token)
+      .send({
+        'userId': userId,
+        'bikeId': bikeId
+      })
+      .end((err, res) => {
+          expect(res).to.have.status(200)
+          expect(res.body).to.include.keys('success');
+          expect(res.body).to.have.property('success', true);
+          done()
+      })
     })
+  })
 
 
 /*////////////////////////////
@@ -349,62 +369,117 @@ describe('\n => Test /bike/* route', function() {
 */////////////////////////////
 
 
+describe('\n => Test /tracker/* route', function() {
 
+  const userTest = new User({
+    mail: 'tracker@biketrack.eu',
+    password: 'qwerty123'
+  })
+  const bikeTest = new Bike({
+      name: "My Bike",
+      color: "Red",
+      brand: "Giant",
+      tracker: "1234567890"
+  })
+  const trackerTest = {
+    coordinates: [
+      45,
+      90,
+      Date.now()
+    ]
+  }
+  let trackerUserId = ""
+  let trackerBikeId = ""
+  let trackerId = ""
+  let trackerToken = ""
 
+  before("Add a Fake User to DB to simulate the action", function(done) {
+    userTest.save((err, data) => {
+      if (err)
+          return done(err)
+      trackerUserId = data._id
 
-    describe('\n => Test /tracker/* route', function() {
-
-        const userTest = new User({mail: 'john_doe@biketrack.eu', password: 'qwerty123'})
-        const bikeTest = {
-            name: "My Bike",
-            color: "Red",
-            brand: "Giant",
-            tracker: "1234567890"
-        }
-        let userId = ""
-        let bikeId = ""
-        let token = ""
-
-        before("Add a Fake User to DB to simulate the action", function(done) {
-
-            userTest.save((err, data) => {
-                if (err)
-                    return done(err)
-                userId = data._id
-
-                chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': userTest.mail, 'password': 'qwerty123'}).end((err, res) => {
-                    token = res.body.token
-                    done()
-                })
-            })
+      chai.request(server)
+      .post('/authenticate')
+      .set('Authorization', apiKey)
+      .send({
+        'mail': userTest.mail,
+        'password': 'qwerty123' // /!\ But WTF userTest.password isn't working !!!!!!!!
+      })
+      .end((err, res) => {
+        trackerToken = res.body.token
+        bikeTest.save((err, bikeData) => { // change with a chai request to have the bike recorded into the user account
+          if (err) return err
+          trackerBikeId = bikeData._id
+          done()
         })
-
-        after("Delete fake User to DB", function(done) {
-            User.findOneAndRemove(userTest.mail, err => {
-                if (err)
-                    return done(err)
-                console.log('User deleted');
-                done()
-            })
-        })
-
-        it("should add a bike a the user john_doe@biketrack.eu", function(done) {
-            chai.request(server).post('/bike')
-            .set('Authorization', apiKey)
-            .set('x-access-token', token)
-            .send({'userId': userId, 'bikeInfo': bikeTest})
-            .end((err, res) => {
-                bikeId = res.body.bikeId
-                expect(res).to.have.status(200)
-                expect(res.body).to.include.keys('success', 'message');
-                expect(res.body).to.have.property('success', true);
-                done()
-            })
-        })
-
-        
-
-
+      })
     })
+  })
 
+  after("Delete fake User to DB", function(done) {
+    console.log(`User ID = ${trackerUserId}`);
+      Tracker.findByIdAndRemove(trackerId, (err, t) => {
+          if (err) return done(err)
+          else if (!t) {
+            console.log('404 Tracker not found');
+
+          }
+          else {
+            console.log('Tracker deleted');
+          }
+
+      })
+
+      Bike.findByIdAndRemove(trackerBikeId, (err, b) => {
+          if (err) return done(err)
+          else if (!b) {
+            console.log('404 Bike not found');
+
+          }
+          else {
+            console.log('Bike deleted');
+          }
+      })
+
+      User.findOneAndRemove(trackerUserId, (err, u) => {
+          if (err) return done(err)
+          else if (!u) {
+            console.log('404 User not found');
+          }
+          else {
+            console.log('User deleted');
+          }
+      })
+      done()
+  })
+
+
+  it(`should add a tracker to the bike ${trackerBikeId}`, function(done) {
+    // console.log(`Bike ID Before request : ${trackerBikeId}`);
+    chai.request(server)
+    .post("/tracker")
+    .set('Authorization', apiKey)
+    .set('x-access-token', trackerToken)
+    .send({
+      'bikeId': trackerBikeId,
+      'trackerInfo': {'coordinates' : [
+        [
+          45,
+          90,
+          Date.now()
+        ]
+      ]}
+    })
+    .end((err, res) => {
+      // console.log(res.req._headers);
+      // console.log(res.body);
+      // console.log(trackerBikeId);
+      trackerId = res.body.trackerId
+      expect(res).to.have.status(200)
+      expect(res.body).to.include.keys('success', 'message')
+      expect(res.body).to.have.property('success', true)
+      done()
+    })
+  })
 })

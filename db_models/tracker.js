@@ -14,7 +14,7 @@ const trackerSchema = new Schema({
         default: Date.now
     },
     coordinates: [
-        [Number, Number, String] // lng first / lat / timestamp
+        [Number, Number, Date] // lng first / lat / timestamp
     ]
 })
 

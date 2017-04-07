@@ -52,17 +52,29 @@ router.delete('/profile/', deleteProfile) // cruD login
 // router.put('/profile/facebook/:userId', addFacebook) // crUd* login
 // router.put('/profile/google/:userId', addGoogle) // crUd* login
 
+
 router.post('/bike/', addBike) // Crud bike
 router.get('/bike/:bikeId', getBikeInfo) // cRud bike
 router.patch('/bike/', updateBike) // crUd bike
 router.delete('/bike/', deleteBike) // cruD bike
-router.post('/tracker', addTracker)
+
+
+router.post('/tracker/', addTracker)
 router.delete('/tracker/', deleteTracker) // unpair tracker from a bike {id}
 router.patch('/tracker/', updateTracker) // update tracker info from a bike
 router.get('/bike/:id/map', mapInfo) // get the last {map} info from a bike {id}
 // router.post('/alert', alert) // send alert to server (don't know how to make it work)
 // router.get('/settings/', getSettings)
 // router.put('/settings/', updateSettings)
+
+
+
+/*////////////////////////////
+//                          //
+//  Function /profile route //
+//                          //
+*/////////////////////////////
+
 
 // router.post('/signup', signup)
 function signup(req, res) {
@@ -97,8 +109,8 @@ function signup(req, res) {
                 return
             })
         } else if (user.mail == mail) {
-            res.status(401)
-            res.json({success: false, message: 'User already in the DB.'})
+            res.status(409)
+            res.json({success: false, message: 'User already in the DB'})
             res.end()
             return
         }
@@ -187,7 +199,7 @@ function getProfile(req, res) {
     })
 }
 
-// router.put('/profile/', update)
+// router.patch('/profile/', update)
 function update(req, res) {
     const userId = req.body.userId
     const update = req.body.update
@@ -258,6 +270,16 @@ function deleteProfile(req, res) {
 //   res.setHeader('Content-Type', 'application/json')
 //   res.json({ Test: '1234' })
 // }
+
+
+
+/*////////////////////////////
+//                          //
+//  Function /bike route    //
+//                          //
+*/////////////////////////////
+
+
 
 // router.post('/bike', addBike)
 function addBike(req, res) {
@@ -421,8 +443,17 @@ function updateBike(req, res) {
 }
 
 
+/*////////////////////////////
+//                          //
+//  Function /tracker route //
+//                          //
+*/////////////////////////////
+
+
+
+// router.post('/tracker', addTracker)
 function addTracker(req, res) {
-  const bikeId = req.body.BikeId
+  const bikeId = req.body.bikeId
   const trackerInfo = req.body.trackerInfo
 
   Bike.findById(bikeId, (err, bike) => {
