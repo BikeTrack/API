@@ -324,7 +324,11 @@ function addBike(req, res) {
                     res.json({success: false, err})
                     res.end()
                 }
-                res.json({success: true, bikeId: b.id, message: `Added Bike: ${b.id} to UserId: ${userId}`})
+                res.json({
+                  success: true,
+                  bikeId: b.id,
+                  message: `Added Bike: ${b.id} to UserId: ${userId}`
+                })
                 res.end()
             })
         })
@@ -345,12 +349,18 @@ function getBikeInfo(req, res) {
 
         if (!bike) {
             res.status(400)
-            res.json({success: false, message: `Cannot find an Bike with the userId: ${bikeId}`})
+            res.json({
+              success: false,
+              message: `Cannot find an Bike with the userId: ${bikeId}`
+            })
             res.end()
             return
         }
 
-        res.json({success: true, bike: bike})
+        res.json({
+          success: true,
+          bike: bike
+        })
         res.end()
         return
     })
@@ -456,6 +466,11 @@ function addTracker(req, res) {
   const bikeId = req.body.bikeId
   const trackerInfo = req.body.trackerInfo
 
+
+  console.log(bikeId);
+  console.log(trackerInfo);
+
+
   Bike.findById(bikeId, (err, bike) => {
     if (err) {
         res.json({success: false, err})
@@ -471,7 +486,7 @@ function addTracker(req, res) {
     } else {
 
       const newTracker = new Tracker(trackerInfo)
-
+      console.log(`Tracker ${newTracker}`);
       newTracker.save((err, t) => {
           if (err) {
               res.json({success: false, err})
@@ -487,9 +502,11 @@ function addTracker(req, res) {
                   res.json({success: false, err})
                   res.end()
               }
-              res.json({success: true,
+              res.json({
+                success: true,
                 trackerId: t.id,
-                message: `Added Tracker: ${t.id} to Bike: ${bikeId}`})
+                message: `Added Tracker: ${t.id} to Bike: ${bikeId}`
+              })
               res.end()
           })
       })
@@ -538,11 +555,20 @@ function deleteTracker(req, res) {
           trackers: newTrackerList
         }, err => {
           if (err) {
-              res.json({success: false, err})
+              res.json({
+                success: false,
+                err
+              })
               res.end()
           }
-          console.log("Tracker deleted from Bike DB");
         })
+
+        res.json({
+          success: true,
+          message: `Tracker with trackerId: ${trackerId} have been remove the User and Bike DB`
+        })
+        res.end()
+        return
 
 
         // Prefered a soft delete from the Database to keep inforamtion for futur data analysis.
@@ -573,7 +599,7 @@ function deleteTracker(req, res) {
     })
 }
 
-// router.patch('/tracker/:id', updateTracker)
+// router.patch('/tracker/', updateTracker)
 function updateTracker(req, res) {
     const trackerId = req.body.trackerId
     const gps = req.body.gps
