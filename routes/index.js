@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
     res.json({foo: 'bar'})
     // res.send('Hello, World!')
 })
-
+//
 router.post('/signup', signup) // Crud login
 router.post('/authenticate', login) // cRud login
 
@@ -27,7 +27,7 @@ router.use((req, res, next) => {
         // verifies secret and checks exp
         jwt.verify(token, config.jwt.secret, (err, decoded) => {
             if (err) {
-                return res.json({success: false, message: 'Failed to authenticate token.'});
+                return res.json({success: false, message: err});
             } else {
                 // if everything is good, save to request for use in other routes
                 req.decoded = decoded;
@@ -467,8 +467,8 @@ function addTracker(req, res) {
   const trackerInfo = req.body.trackerInfo
 
 
-  console.log(bikeId);
-  console.log(trackerInfo);
+  console.log('BikeId', bikeId);
+  console.log('Tracker Info : \n',trackerInfo);
 
 
   Bike.findById(bikeId, (err, bike) => {
@@ -484,7 +484,6 @@ function addTracker(req, res) {
       res.end()
       return
     } else {
-
       const newTracker = new Tracker(trackerInfo)
       console.log(`Tracker ${newTracker}`);
       newTracker.save((err, t) => {
@@ -493,10 +492,9 @@ function addTracker(req, res) {
               res.end()
               return
           }
-          const trackerList = bike.trackers
-          trackerList.push(t.id)
+          const trackerId = t._id
           bike.update({
-              trackers: trackerList
+              tracker: trackerId
           }, err => {
               if (err) {
                   res.json({success: false, err})

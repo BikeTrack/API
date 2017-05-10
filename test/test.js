@@ -303,7 +303,14 @@ describe('\n => Test /bike/* route', function() {
     })
 
     it("should add a bike a the user john_doe@biketrack.eu", function(done) {
-        chai.request(server).post('/bike').set('Authorization', apiKey).set('x-access-token', token).send({'userId': userId, 'bikeInfo': bikeTest}).end((err, res) => {
+        chai.request(server)
+        .post('/bike')
+        .set('Authorization', apiKey)
+        .set('x-access-token', token)
+        .send({
+          'userId': userId,
+          'bikeInfo': bikeTest
+        }).end((err, res) => {
             bikeId = res.body.bikeId
             expect(res).to.have.status(200)
             expect(res.body).to.include.keys('success', 'message');
@@ -313,7 +320,11 @@ describe('\n => Test /bike/* route', function() {
     })
 
     it("should get the previous recorded bike info", function(done) {
-        chai.request(server).get(`/bike/${bikeId}`).set('Authorization', apiKey).set('x-access-token', token).end((err, res) => {
+        chai.request(server)
+        .get(`/bike/${bikeId}`)
+        .set('Authorization', apiKey)
+        .set('x-access-token', token)
+        .end((err, res) => {
             expect(res).to.have.status(200)
             expect(res.body).to.include.keys('success');
             expect(res.body).to.have.property('success', true);
@@ -435,7 +446,6 @@ describe('\n => Test /tracker/* route', function() {
           if (err) return done(err)
           else if (!b) {
             console.log('404 Bike not found');
-
           }
           else {
             console.log('Bike deleted');
@@ -463,13 +473,15 @@ describe('\n => Test /tracker/* route', function() {
     .set('x-access-token', trackerToken)
     .send({
       'bikeId': trackerBikeId,
-      'trackerInfo': {'coordinates' : [
-        [
-          45,
-          90,
-          Date.now()
-        ]
-      ]}
+      'trackerInfo': {
+        '_id': 'testId',
+        'coordinates' : {
+          timeStamp: Date.now,
+          lng: 45,
+          lat: 90,
+          alt: -2
+        }
+      }
     })
     .end((err, res) => {
       // console.log(res.req._headers);
