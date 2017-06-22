@@ -7,6 +7,9 @@
     "start": "node ./www/index.js",
     "test": "mocha"
   },
+  "engines": {
+    "node": "8.1"
+  }
   "keywords": [
     "biketrack",
     "api",
