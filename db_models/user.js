@@ -8,12 +8,21 @@ const userSchema = new Schema({
   _id: {type: String, 'default': shortid.generate},
   created: {type: Date, default: Date.now},
   updated: {type: Date, default: Date.now},
-  name: String,
-  mail: {type: String, index: true, required: true},
+  name: {
+    type: String,
+    trim: true
+  },
+  mail: {type: String, index: true, required: true, trim: true},
   password: {type: String, required: true},
-  google: String,
-  facebook: String,
-  bikes: [{type: String, index: true}]
+  google: {
+    type: String,
+    trim: true
+  },
+  facebook: {
+    type: String,
+    trim: true
+  },
+  bikes: [{type: String, index: true, trim: true}]
 })
 
 userSchema.pre('save', function(next){

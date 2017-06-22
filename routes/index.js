@@ -8,6 +8,12 @@ const Tracker = require('../db_models/tracker')
 const config = require('../config/')
 const bcrypt = require('bcrypt')
 
+const storeController = require('./storeController');
+
+
+router.post('/biketrack', storeController.biketrack)
+
+
 // Test
 router.get('/', (req, res) => {
     res.setHeader('Content-Type', 'application/json')
@@ -15,8 +21,8 @@ router.get('/', (req, res) => {
     // res.send('Hello, World!')
 })
 //
-router.post('/signup', signup) // Crud login
-router.post('/authenticate', login) // cRud login
+router.post('/signup', storeController.signup) // Crud login
+router.post('/authenticate', storeController.login) // cRud login
 
 router.use((req, res, next) => {
     // check header or url parameters or post parameters for token
@@ -43,9 +49,9 @@ router.use((req, res, next) => {
     }
 })
 
-router.get('/profile/:userId', getProfile) // cRud login
-router.patch('/profile/', update) // crUd login
-router.delete('/profile/', deleteProfile) // cruD login
+router.get('/profile/:userId', storeController.getProfile) // cRud login
+router.patch('/profile/', storeController.update) // crUd login
+router.delete('/profile/', storeController.deleteProfile) // cruD login
 
 // router.post('/authenticate/facebook', authFacebook) // crUd* login
 // router.post('/authenticate/google', authGoogle) // crUd* login
@@ -53,7 +59,7 @@ router.delete('/profile/', deleteProfile) // cruD login
 // router.put('/profile/google/:userId', addGoogle) // crUd* login
 
 
-router.post('/bike/', addBike) // Crud bike
+router.post('/bike/', storeController.addBike) // Crud bike
 router.get('/bike/:bikeId', getBikeInfo) // cRud bike
 router.patch('/bike/', updateBike) // crUd bike
 router.delete('/bike/', deleteBike) // cruD bike
