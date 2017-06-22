@@ -8,8 +8,8 @@
     "test": "mocha"
   },
   "engines": {
-    "node": "8.1"
-  }
+    "node": "8.1.x"
+  },
   "keywords": [
     "biketrack",
     "api",
