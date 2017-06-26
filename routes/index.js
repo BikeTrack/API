@@ -65,9 +65,9 @@ router.patch('/bike/', updateBike) // crUd bike
 router.delete('/bike/', storeController.deleteBike) // cruD bike
 
 
-router.post('/tracker/', addTracker)
-router.delete('/tracker/', deleteTracker) // unpair tracker from a bike {id}
-router.patch('/tracker/', updateTracker) // update tracker info from a bike
+router.post('/tracker/', storeController.addTracker)
+router.delete('/tracker/', storeController.deleteTracker) // unpair tracker from a bike {id}
+router.patch('/tracker/', storeController.updateTracker) // update tracker info from a bike
 router.get('/bike/:id/map', mapInfo) // get the last {map} info from a bike {id}
 // router.post('/alert', alert) // send alert to server (don't know how to make it work)
 // router.get('/settings/', getSettings)

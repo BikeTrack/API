@@ -438,6 +438,7 @@ exports.deleteTracker = async (req, res) => {
       })
       res.end()
       return
+    }
 
   } catch (e) {
     res.status(400)
