@@ -5,15 +5,32 @@ const bcrypt = require('bcrypt');
 const Schema = mongoose.Schema
 
 const userSchema = new Schema({
-  _id: {type: String, 'default': shortid.generate},
-  created: {type: Date, default: Date.now},
-  updated: {type: Date, default: Date.now},
+  _id: {
+    type: String,
+    'default': shortid.generate
+  },
+  created: {
+    type: Date,
+    default: Date.now
+  },
+  updated: {
+    type: Date,
+    default: Date.now
+  },
   name: {
     type: String,
     trim: true
   },
-  mail: {type: String, index: true, required: true, trim: true},
-  password: {type: String, required: true},
+  mail: {
+    type: String,
+    index: true,
+    required: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
   google: {
     type: String,
     trim: true
@@ -22,7 +39,10 @@ const userSchema = new Schema({
     type: String,
     trim: true
   },
-  bikes: [{type: String, index: true, trim: true}]
+  bikes: [{
+    type: String,
+    index: true
+  }]
 })
 
 userSchema.pre('save', function(next){

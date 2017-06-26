@@ -256,109 +256,107 @@ exports.addBike = async (req, res) => {
 exports.getBikeInfo = async (req, res) => {
   const bikeId = req.params.bikeId
 
-  const bike = await Bike.findById(bikeId)
+  try {
+    const bike = await Bike.findById(bikeId)
 
-  if (!bike) {
-    res.status(400)
+    if (!bike) {
+      res.status(400)
+      res.json({
+        success: false,
+        message: `Cannot find an Bike with the bikeId: ${bikeId}`
+      })
+      res.end()
+      return
+    }
     res.json({
-      success: false,
-      message: `Cannot find an Bike with the bikeId: ${bikeId}`
+      success: true,
+      bike: bike
     })
     res.end()
     return
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
   }
-  res.json({
-    success: true,
-    bike: bike
-  })
-  res.end()
-  return
 }
 
 // router.delete('/bike/', deleteBike)
-function deleteBike(req, res) {
-    const userId = req.body.userId
-    const bikeId = req.body.bikeId
+exports.deleteBike = async (req, res) => {
+  const userId = req.body.userId
+  const bikeId = req.body.bikeId
 
-    User.findById(userId, (err, user) => {
-        if (err) {
-            res.json({success: false, err})
-            res.end()
-        }
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      res.status(401)
+      res.json({success: false, message: `Cannot find an User with the userId: ${userId}`})
+      res.end()
+      return
+    }
 
-        if (!user) {
-            res.status(401)
-            res.json({success: false, message: `Cannot find an User with the userId: ${userId}`})
-            res.end()
-            return
-        }
+    const newBikeList = user.bikes.filter(bId => bId !== bikeId)
+    if (newBikeList === user.bikes) {
+      res.status(401)
+      res.json({success: false, message: `Cannot find a bike with this ID : ${bikeId} for this User`})
+      res.end()
+      return
+    }
 
-        const newBikeList = user.bikes.filter(bId => bId !== bikeId)
-        if (newBikeList === user.bikes) {
-            res.status(401)
-            res.json({success: false, message: `Cannot find a bike with this ID : ${bikeId} for this User`})
-            res.end()
-            return
-        }
-
-        user.update({
-            bikes: newBikeList
-        }, err => {
-            if (err) {
-                res.json({success: false, err})
-                res.end()
-            }
-            console.log("Bike deleted from User DB");
-        })
-
-        Bike.findByIdAndRemove(bikeId, (err, bike) => {
-            if (err) {
-                res.json({success: false, err})
-                res.end()
-            }
-
-            if (!bike) {
-                res.status(401)
-                res.json({success: false, message: `Bike was found and deleted from the User DB but not found in Bikes DB`})
-                res.end()
-                return
-            }
-
-            res.json({
-              success: true,
-              message: `Bike with bikeId: ${bikeId} have been remove from the 2 DB`
-            })
-            res.end()
-            return
-
-        })
+    await user.update({
+      bikes: newBikeList
     })
+
+    const bike = await Bike.findByIdAndRemove(bikeId)
+    if (!bike) {
+      res.status(401)
+      res.json({success: false, message: `Bike was found and deleted from the User DB but not found in Bikes DB`})
+      res.end()
+      return
+    }
+
+    res.json({
+      success: true,
+      message: `Bike with bikeId: ${bikeId} have been remove from the 2 DB`
+    })
+    res.end()
+    return
+
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
 }
 
 // router.patch('/bike/', updateBike)
-function updateBike(req, res) {
-    const bikeId = req.body.bikeId
-    const update = req.body.update
+exports.updateBike = async (req, res) => {
+  const bikeId = req.body.bikeId
+  const update = req.body.update
 
-    Bike.findByIdAndUpdate(bikeId, update, {new: true}, (err, newBike) => {
-        if (err) {
-            res.json({success: false, err})
-            res.end()
-        } else if (!newBike) {
-            res.status(401)
-            res.json({
-              success: false,
-              message: `No Bike with this ID ${bikeId} found`
-            })
-            res.end()
-            return
-        }
-
-        res.json({success: true, bike: newBike, message: `Bike updated`})
+  try {
+  const bike = await Bike.findByIdAndUpdate(bikeId, update, {new: true} )
+  if (!bike) {
+        res.status(401)
+        res.json({
+          success: false,
+          message: `No Bike with this ID ${bikeId} found`
+        })
         res.end()
         return
+    }
 
-    })
+    res.json({success: true, bike: bike, message: `Bike updated`})
+    res.end()
+    return
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
 }
 
 
@@ -369,22 +367,15 @@ function updateBike(req, res) {
 */////////////////////////////
 
 
-
 // router.post('/tracker', addTracker)
-function addTracker(req, res) {
+exports.addTracker = async (req, res) => {
   const bikeId = req.body.bikeId
   const trackerInfo = req.body.trackerInfo
 
+  try {
+    const bike = await Bike.findById(bikeId)
 
-  console.log('BikeId', bikeId);
-  console.log('Tracker Info : \n',trackerInfo);
-
-
-  Bike.findById(bikeId, (err, bike) => {
-    if (err) {
-        res.json({success: false, err})
-        res.end()
-    } else if (!bike) {
+    if (!bike) {
       res.status(401)
       res.json({
         success: false,
@@ -393,148 +384,129 @@ function addTracker(req, res) {
       res.end()
       return
     } else {
-      const newTracker = new Tracker(trackerInfo)
-      console.log(`Tracker ${newTracker}`);
-      newTracker.save((err, t) => {
-          if (err) {
-              res.json({success: false, err})
-              res.end()
-              return
-          }
-          const trackerId = t._id
-          bike.update({
-              tracker: trackerId
-          }, err => {
-              if (err) {
-                  res.json({success: false, err})
-                  res.end()
-              }
-              res.json({
-                success: true,
-                trackerId: t.id,
-                message: `Added Tracker: ${t.id} to Bike: ${bikeId}`
-              })
-              res.end()
-          })
+      const newTracker = await (new Tracker(trackerInfo)).save()
+      const trackerId = newTracker._id
+      bike.update({ tracker: trackerId })
+      res.json({
+        success: true,
+        trackerId: newTracker.id,
+        message: `Added Tracker: ${newTracker.id} to Bike: ${bikeId}`
       })
-
+      res.end()
     }
-  })
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
 }
 
 // router.delete('/tracker/', deleteTracker)
-function deleteTracker(req, res) {
-    const bikeId = req.body.bikeId
-    const trackerId = req.body.trackerId
+exports.deleteTracker = async (req, res) => {
+  const bikeId = req.body.bikeId
+  const trackerId = req.body.trackerId
 
-    Bike.findById(bikeId, (err, bike) => {
-      if (err) {
+  try {
+    const bike = await Bike.findById(bikeId)
 
-          res.json({success: false, err})
-          res.end()
-          return
-
-      } else if (!bike){
-
-        res.status(401)
-        res.json({
-          success: false,
-          message: `No Bike with this ID ${bikeId} found`
-        })
-        res.end()
-        return
-
-      } else {
-
-        const newTrackerList = bike.trackers.filter(tId => tId !== trackerId)
-
-        if (newTrackerList === bike.trackers) {
-          res.status(401)
-          res.json({
-            success: false,
-            message: `Cannot find a tracker with this ID : ${trackerId} for this Bike`
-          })
-          res.end()
-          return
-        }
-
-        bike.update({
-          trackers: newTrackerList
-        }, err => {
-          if (err) {
-              res.json({
-                success: false,
-                err
-              })
-              res.end()
-          }
-        })
-
-        res.json({
-          success: true,
-          message: `Tracker with trackerId: ${trackerId} have been remove the User and Bike DB`
-        })
-        res.end()
-        return
-
-
-        // Prefered a soft delete from the Database to keep inforamtion for futur data analysis.
-        // Tracker.findByIdAndRemove(trackerId, (err, tracker) => {
-        //   if (err) {
-        //       res.json({success: false, err})
-        //       res.end()
-        //   }
-        //
-        //   if (!tracker) {
-        //       res.status(401)
-        //       res.json({
-        //         success: false,
-        //         message: `Tracker was found and deleted from the Bike DB but not found in Tracker DB`
-        //       })
-        //       res.end()
-        //       return
-        //   }
-        //
-        //   res.json({
-        //     success: true,
-        //     message: `Tracker with trackerId: ${trackerId} have been remove from the 2 DB`
-        //   })
-        //   res.end()
-        //   return
-        // })
-      }
-    })
-}
-
-// router.patch('/tracker/', updateTracker)
-function updateTracker(req, res) {
-    const trackerId = req.body.trackerId
-    const gps = req.body.gps
-
-    // add check on gps valid format
-
-    Tracker.findById(trackerId, gps, {new: true}, (err, newTracker) => {
-      if (err) {
-          res.json({success: false, err})
-          res.end()
-      } else if (!newTracker) {
-        res.status(401)
-        res.json({
-          success: false,
-          message: `No Tracker with this ID ${trackerId} found`
-        })
-        res.end()
-        return
-      }
-
+    if (!bike){
+      res.status(401)
       res.json({
-        success: true,
-        bike: newTracker,
-        message: `Tracker updated`
+        success: false,
+        message: `No Bike with this ID ${bikeId} found`
       })
       res.end()
       return
+
+    } else {
+
+      if (trackerId !== bike.tracker) {
+        res.status(401)
+        res.json({
+          success: false,
+          message: `Cannot find a tracker with this ID : ${trackerId} for this Bike`
+        })
+        res.end()
+        return
+      }
+
+      await bike.update({ trackers: "" })
+      res.json({
+        success: true,
+        message: `Tracker with trackerId: ${trackerId} have been remove the User and Bike DB`
+      })
+      res.end()
+      return
+
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
+
+
+
+  // Prefered a soft delete from the Database to keep inforamtion for futur data analysis.
+  // Tracker.findByIdAndRemove(trackerId, (err, tracker) => {
+  //   if (err) {
+  //       res.json({success: false, err})
+  //       res.end()
+  //   }
+  //
+  //   if (!tracker) {
+  //       res.status(401)
+  //       res.json({
+  //         success: false,
+  //         message: `Tracker was found and deleted from the Bike DB but not found in Tracker DB`
+  //       })
+  //       res.end()
+  //       return
+  //   }
+  //
+  //   res.json({
+  //     success: true,
+  //     message: `Tracker with trackerId: ${trackerId} have been remove from the 2 DB`
+  //   })
+  //   res.end()
+  //   return
+  // })
+}
+
+// router.patch('/tracker/', updateTracker)
+exports.updateTracker = async (req, res) => {
+  const trackerId = req.body.trackerId
+  const gps = req.body.gps
+
+  // add check on gps valid format
+
+  try {
+
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
+
+  const tracker = await Tracker.findById(trackerId)
+  if (!tracker) {
+    res.status(401)
+    res.json({
+      success: false,
+      message: `No Tracker with this ID ${trackerId} found`
     })
+    res.end()
+    return
+  }
+  res.json({
+    success: true,
+    bike: tracker,
+    message: `Tracker updated`
+  })
+  res.end()
+  return
 }
 
 // router.get('/bike/:id/map', mapInfo)

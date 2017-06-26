@@ -62,7 +62,7 @@ router.delete('/profile/', storeController.deleteProfile) // cruD login
 router.post('/bike/', storeController.addBike) // Crud bike
 router.get('/bike/:bikeId', getBikeInfo) // cRud bike
 router.patch('/bike/', updateBike) // crUd bike
-router.delete('/bike/', deleteBike) // cruD bike
+router.delete('/bike/', storeController.deleteBike) // cruD bike
 
 
 router.post('/tracker/', addTracker)
