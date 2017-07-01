@@ -2,9 +2,7 @@ const mongoose = require('mongoose');
 const shortid = require('shortid');
 const bcrypt = require('bcrypt');
 
-const Schema = mongoose.Schema
-
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
   _id: {
     type: String,
     'default': shortid.generate
@@ -19,11 +17,22 @@ const userSchema = new Schema({
   },
   name: {
     type: String,
+    lowercase: true,
+    trim: true
+  },
+  lastname: {
+    type: String,
+    lowercase: true,
+    trim: true
+  },
+  dob: {
+    type: String, // a refaire avec un type Date
     trim: true
   },
   mail: {
     type: String,
     index: true,
+    lowercase: true,
     required: true,
     trim: true
   },
@@ -64,6 +73,27 @@ userSchema.pre('save', function(next){
     }
 });
 
+// userSchema.pre('update', function(next) {
+//   const user = this
+//
+//   this.update({},{ $set: { updatedAt: new Date() } });
+//
+//   // const saltRound = Math.random() * (10 - 7) + 7; //random saltRound btw 7 - 14
+//   //
+//   // if (this.isModified('password')) {
+//   //     bcrypt.genSalt(saltRound, function(err, salt){
+//   //         if (err) return next(err)
+//   //         bcrypt.hash(user.password, salt, function(err, hash){
+//   //             if (err) return next(err)
+//   //             user.password = hash
+//   //             next()
+//   //         })
+//   //     })
+//   // } else {
+//   //     return next()
+//   // }
+// });
+
 userSchema.methods.comparePassword = function(clearPass, callback) {
     bcrypt.compare(clearPass, this.password, function(err, isMatch) {
         if (err) {
@@ -73,6 +103,4 @@ userSchema.methods.comparePassword = function(clearPass, callback) {
     });
 };
 
-const User = mongoose.model('User', userSchema)
-
-module.exports = User
+module.exports = mongoose.model('User', userSchema)

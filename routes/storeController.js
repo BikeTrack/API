@@ -6,27 +6,21 @@ const User = mongoose.model('User')
 const Bike = mongoose.model('Bike')
 const Tracker = mongoose.model('Tracker')
 
+
 /*////////////////////////////
 //                          //
-//  Function /profile route //
+//  Function /signup route  //
 //                          //
 */////////////////////////////
 
-exports.biketrack = async (req, res) => {
-  console.log(req.body);
-  res.end()
-}
-
-
-
 // router.post('/signup', signup)
 exports.signup = async (req, res) => {
-  const mail = req.body.mail
-  const password = req.body.password
+  const { mail, password } = req.body
+  console.log((req.body));
 
   if (!mail || !password) {
       res.status(404)
-      res.json({success: false, message: "Mail || Passowrd is blank"})
+      res.json({success: false, message: "Mail || Password is blank"})
       res.end()
       return
   }
@@ -39,7 +33,7 @@ exports.signup = async (req, res) => {
       res.end()
       return
     }
-    const newUser = new User({mail: mail, password: password})
+    const newUser = new User(req.body)
     await newUser.save()
     res.json({success: true, message: "Try to login now motherfucker"})
     res.end()
@@ -55,8 +49,7 @@ exports.signup = async (req, res) => {
 
 // router.post('/authenticate', login)
 exports.login = async (req, res) => {
-  const mail = req.body.mail
-  const password = req.body.password
+  const { mail, password } = req.body
 
   if (!mail || !password) {
       res.status(404)
@@ -103,9 +96,17 @@ exports.login = async (req, res) => {
   }
 }
 
+
+
+/*////////////////////////////
+//                          //
+//  Function /profile route //
+//                          //
+*/////////////////////////////
+
 // router.get('/profile/:userId', getProfile)
 exports.getProfile = async (req, res) => {
-  const userId = req.params.userId
+  const { userId } = req.params
 
   try {
     const user = await User.findById(userId, "-password")
@@ -130,15 +131,18 @@ exports.getProfile = async (req, res) => {
 }
 
 // router.patch('/profile/', update)
-exports.update = async (req, res) => {
-  const userId = req.body.userId
-  const update = req.body.update
+exports.updateProfile = async (req, res) => {
+  const { userId, update } = req.body
+
+  console.log('YOoooOOoloOOoOooO');
 
   try {
     const user = await User.findByIdAndUpdate(userId, update, {
-        new: true,
-        select: '-password'
-    })
+    new: true,
+    runValidators: true,
+    select: '-password'
+  }).exec()
+
     if (!user) {
       res.status(401)
       res.json({success: false, message: `Cannot find an User with the userId: ${userId}`})
@@ -159,7 +163,7 @@ exports.update = async (req, res) => {
 
 // router.delete('/profile/', deleteProfile)
 exports.deleteProfile = async (req, res) => {
-  const userId = req.body.userId
+  const { userId } = req.body
 
   try {
     const user = await User.findByIdAndRemove(userId)
@@ -208,12 +212,9 @@ exports.deleteProfile = async (req, res) => {
 //                          //
 */////////////////////////////
 
-
-
 // router.post('/bike', addBike)
 exports.addBike = async (req, res) => {
-  const userId = req.body.userId
-  const bikeInfo = req.body.bikeInfo
+  const { userId, bikeInfo } = req.body
 
   if (!bikeInfo.tracker || !userId) {
     res.status(401)
@@ -254,7 +255,7 @@ exports.addBike = async (req, res) => {
 
 // router.get('/bike/:bikeId', getBikeInfo)
 exports.getBikeInfo = async (req, res) => {
-  const bikeId = req.params.bikeId
+  const { bikeId } = req.params
 
   try {
     const bike = await Bike.findById(bikeId)
@@ -282,10 +283,36 @@ exports.getBikeInfo = async (req, res) => {
   }
 }
 
+// router.patch('/bike/', updateBike)
+exports.updateBike = async (req, res) => {
+  const { bikeId, update } = req.body
+
+  try {
+  const bike = await Bike.findByIdAndUpdate(bikeId, update, {new: true} )
+  if (!bike) {
+        res.status(401)
+        res.json({
+          success: false,
+          message: `No Bike with this ID ${bikeId} found`
+        })
+        res.end()
+        return
+    }
+
+    res.json({success: true, bike: bike, message: `Bike updated`})
+    res.end()
+    return
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
+}
+
 // router.delete('/bike/', deleteBike)
 exports.deleteBike = async (req, res) => {
-  const userId = req.body.userId
-  const bikeId = req.body.bikeId
+  const { userId, bikeId } = req.body
 
   try {
     const user = await User.findById(userId)
@@ -331,33 +358,6 @@ exports.deleteBike = async (req, res) => {
   }
 }
 
-// router.patch('/bike/', updateBike)
-exports.updateBike = async (req, res) => {
-  const bikeId = req.body.bikeId
-  const update = req.body.update
-
-  try {
-  const bike = await Bike.findByIdAndUpdate(bikeId, update, {new: true} )
-  if (!bike) {
-        res.status(401)
-        res.json({
-          success: false,
-          message: `No Bike with this ID ${bikeId} found`
-        })
-        res.end()
-        return
-    }
-
-    res.json({success: true, bike: bike, message: `Bike updated`})
-    res.end()
-    return
-  } catch (e) {
-    res.status(400)
-    console.error(e);
-    res.json({success: false, e})
-    res.end()
-  }
-}
 
 
 /*////////////////////////////
@@ -366,11 +366,9 @@ exports.updateBike = async (req, res) => {
 //                          //
 */////////////////////////////
 
-
 // router.post('/tracker', addTracker)
 exports.addTracker = async (req, res) => {
-  const bikeId = req.body.bikeId
-  const trackerInfo = req.body.trackerInfo
+  const { bikeId, trackerInfo } = req.body
 
   try {
     const bike = await Bike.findById(bikeId)
@@ -402,10 +400,39 @@ exports.addTracker = async (req, res) => {
   }
 }
 
+// router.get('/tracker/:trackerId', storeController.addTracker)
+exports.getTracker = async (req, res) => {
+  const { trackerId } = req.params
+
+  try {
+    const bike = await Bike.findById(bikeId)
+
+    if (!bike) {
+      res.status(400)
+      res.json({
+        success: false,
+        message: `Cannot find an Bike with the bikeId: ${bikeId}`
+      })
+      res.end()
+      return
+    }
+    res.json({
+      success: true,
+      bike: bike
+    })
+    res.end()
+    return
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
+}
+
 // router.delete('/tracker/', deleteTracker)
 exports.deleteTracker = async (req, res) => {
-  const bikeId = req.body.bikeId
-  const trackerId = req.body.trackerId
+  const { bikeId, trackerId } = req.body
 
   try {
     const bike = await Bike.findById(bikeId)
@@ -477,59 +504,41 @@ exports.deleteTracker = async (req, res) => {
 
 // router.patch('/tracker/', updateTracker)
 exports.updateTracker = async (req, res) => {
-  const trackerId = req.body.trackerId
-  const gps = req.body.gps
+  const { trackerId, gps } = req.body
 
   // add check on gps valid format
-
   try {
-
+    const tracker = await Tracker.findById(trackerId)
+    if (!tracker) {
+      res.status(401)
+      res.json({
+        success: false,
+        message: `No Tracker with this ID ${trackerId} found`
+      })
+      res.end()
+      return
+    }
+    res.json({
+      success: true,
+      bike: tracker,
+      message: `Tracker updated`
+    })
+    res.end()
+    return
   } catch (e) {
     res.status(400)
     console.error(e);
     res.json({success: false, e})
     res.end()
   }
-
-  const tracker = await Tracker.findById(trackerId)
-  if (!tracker) {
-    res.status(401)
-    res.json({
-      success: false,
-      message: `No Tracker with this ID ${trackerId} found`
-    })
-    res.end()
-    return
-  }
-  res.json({
-    success: true,
-    bike: tracker,
-    message: `Tracker updated`
-  })
-  res.end()
-  return
 }
 
-// router.get('/bike/:id/map', mapInfo)
-function mapInfo(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
-}
+/*//////////////////////////////
+//                            //
+//  Function /biketrack route //
+//                            //
+*///////////////////////////////
 
-// router.post('/alert', alert)
-function alert(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
-}
-
-// router.get('/settings/:id', getSettings)
-function getSettings(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
-}
-
-// router.put('/settings/:id', updateSettings)
-function updateSettings(req, res) {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({Test: '1234'})
+exports.biketrack = async (req, res) => {
+  
 }

@@ -32,7 +32,7 @@ app.use(apiKey);
 // MongoDB config
 const config = require('./config/');
 mongoose.Promise = global.Promise
-mongoose.connect(config.mongoURI[app.settings.env], (err, res) => {
+mongoose.connect(config.mongoURI[app.settings.env], {useMongoClient: true},(err, res) => {
   if(err) {
     console.log('Error connecting to the database. ' + err);
   } else {
