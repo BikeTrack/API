@@ -7,6 +7,14 @@ const Bike = mongoose.model('Bike')
 const Tracker = mongoose.model('Tracker')
 
 
+// Test
+exports.test = (req, res) => {
+    res.setHeader('Content-Type', 'application/json')
+    res.json({foo: 'bar'})
+}
+//
+
+
 /*////////////////////////////
 //                          //
 //  Function /signup route  //
@@ -540,5 +548,5 @@ exports.updateTracker = async (req, res) => {
 *///////////////////////////////
 
 exports.biketrack = async (req, res) => {
-  
+
 }

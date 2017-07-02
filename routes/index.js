@@ -10,8 +10,8 @@ const bcrypt = require('bcrypt')
 
 const storeController = require('./storeController');
 
-
-router.post('/biketrack', storeController.biketrack)
+//Test
+router.get('/', storeController.test)
 
 /*////////////////////////////
 //                          //
