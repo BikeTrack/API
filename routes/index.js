@@ -13,6 +13,7 @@ const storeController = require('./storeController');
 //Test
 router.get('/', storeController.test)
 
+
 /*////////////////////////////
 //                          //
 //  Function /signup route  //
