@@ -413,20 +413,20 @@ exports.getTracker = async (req, res) => {
   const { trackerId } = req.params
 
   try {
-    const bike = await Bike.findById(bikeId)
+    const tracker = await Tracker.findById(trackerId)
 
-    if (!bike) {
+    if (!tracker) {
       res.status(400)
       res.json({
         success: false,
-        message: `Cannot find an Bike with the bikeId: ${bikeId}`
+        message: `Cannot find an Tracker with the trackerId: ${trackerId}`
       })
       res.end()
       return
     }
     res.json({
       success: true,
-      bike: bike
+      tracker
     })
     res.end()
     return
@@ -548,5 +548,57 @@ exports.updateTracker = async (req, res) => {
 *///////////////////////////////
 
 exports.biketrack = async (req, res) => {
+
+  const {
+    time,
+    device, // 7462C for Felix's Tracker
+    snr,
+    station,
+    data,
+    avgSnr,
+    rssi,
+    seqNumber,
+    latGps,
+    lngGPS,
+    altGPS
+  } = req.body
+
+  try {
+    let tracker = await Tracker.findById(device)
+
+    if (!tracker) {
+      tracker = await (new Tracker({_id: device})).save()
+      console.log('New tracker created');
+    }
+
+    const coordinates = [lngGPS, latGps, altGPS]
+    const locations = {
+      coordinates,
+      timestamp: Date(time),
+      snr,
+      station,
+      data,
+      avgSnr,
+      rssi,
+      seqNumber
+    }
+    const locationsArray = tracker.locations
+
+    const updated = Date.now()
+
+    console.log("Updated : ", updated);
+
+    locationsArray.push(locations)
+
+    let updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated}, {new: true})
+
+    res.json({success: true, tracker: updatedtracker})
+    res.end()
+  } catch (e) {
+    res.status(400)
+    console.error(e);
+    res.json({success: false, e})
+    res.end()
+  }
 
 }
