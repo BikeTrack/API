@@ -608,7 +608,7 @@ exports.biketrack = async (req, res) => {
       console.log('New tracker created');
     }
 
-    const coordinates = [lngGPS, latGps, altGPS]
+    const coordinates = [lngGPS, latGps]
     let updatedtracker
 
     if ((coordinates[0] === -150.0) && (coordinates[1] === 80.0)) {
@@ -627,22 +627,22 @@ exports.biketrack = async (req, res) => {
       chocArray.push(choc)
       const updated = Date.now()
       updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {choc: chocArray, updated}, {new: true})
-    } else if ((coordinates[0] === -150.0) && (coordinates[1] === -62.0)) {
-      const battery = {
-        pourcentage: coordinates[2] * 100 / 3.7,
-        timestamp: Date(time),
-        snr,
-        station,
-        data,
-        avgSnr,
-        rssi,
-        seqNumber
-      }
-
-      const batteryArray = tracker.battery
-      batteryArray.push(battery)
-      const updated = Date.now()
-      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {battery: batteryArray, updated}, {new: true})
+    // } else if ((coordinates[0] === -150.0) && (coordinates[1] === -62.0)) {
+    //   const battery = {
+    //     pourcentage: coordinates[2] * 100 / 3.7,
+    //     timestamp: Date(time),
+    //     snr,
+    //     station,
+    //     data,
+    //     avgSnr,
+    //     rssi,
+    //     seqNumber
+    //   }
+    //
+    //   const batteryArray = tracker.battery
+    //   batteryArray.push(battery)
+    //   const updated = Date.now()
+    //   updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {battery: batteryArray, updated}, {new: true})
     } else {
       const locations = {
         coordinates,
@@ -654,16 +654,32 @@ exports.biketrack = async (req, res) => {
         rssi,
         seqNumber
       }
+
+      const pourcentage = (altGPS  * 100 / 3.7)
+      if (pourcentage > 100) {
+        pourcentage = 100
+      }
+
+      const battery = {
+        pourcentage: pourcentage,
+        timestamp: Date(time),
+        snr,
+        station,
+        data,
+        avgSnr,
+        rssi,
+        seqNumber
+      }
+
       const locationsArray = tracker.locations
 
       const updated = Date.now()
 
       locationsArray.push(locations)
 
-      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated}, {new: true})
+      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated, battery}, {new: true})
 
     }
-
 
 
     res.json({success: true, tracker: updatedtracker})
