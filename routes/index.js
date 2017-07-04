@@ -13,6 +13,14 @@ const storeController = require('./storeController');
 //Test
 router.get('/', storeController.test)
 
+/*//////////////////////////////
+//                            //
+//  Function /biketrack route //
+//                            //
+*///////////////////////////////
+
+router.post('/biketrack', storeController.biketrack)
+
 
 /*////////////////////////////
 //                          //
@@ -82,13 +90,5 @@ router.post('/tracker/', storeController.addTracker)
 router.get('/tracker/:trackerId', storeController.getTracker)
 router.delete('/tracker/', storeController.deleteTracker) // unpair tracker from a bike {id}
 router.patch('/tracker/', storeController.updateTracker) // update tracker info from a bike
-
-/*//////////////////////////////
-//                            //
-//  Function /biketrack route //
-//                            //
-*///////////////////////////////
-
-router.post('/biketrack', storeController.biketrack)
 
 module.exports = router
