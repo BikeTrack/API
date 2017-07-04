@@ -577,7 +577,7 @@ exports.biketrack = async (req, res) => {
     if ((coordinates[0] === -150.0) && (coordinates[1] === 80.0)) {
       console.log('CHHHHHHOOOOOCCCCCCC');
       const choc = {
-        timestamp: time,
+        timestamp: Date(time),
         checked: false,
         snr,
         station,
@@ -595,7 +595,7 @@ exports.biketrack = async (req, res) => {
       console.log('BBBBAAAATTTTEEEERRRRRYYYYY');
       const battery = {
         pourcentage: coordinates[2] * 100 / 3.7,
-        timestamp: time,
+        timestamp: Date(time),
         snr,
         station,
         data,
