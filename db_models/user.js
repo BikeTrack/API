@@ -51,7 +51,11 @@ const userSchema = new mongoose.Schema({
   bikes: [{
     type: String,
     index: true
-  }]
+  }],
+  img: {
+    buffer: Buffer,
+    contentType: String
+  }
 })
 
 userSchema.pre('save', function(next){

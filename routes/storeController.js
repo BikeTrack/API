@@ -23,25 +23,34 @@ exports.test = (req, res) => {
 
 // router.post('/signup', signup)
 exports.signup = async (req, res) => {
-  const { mail, password } = req.body
-  console.log((req.body));
+  const data = req.body
 
-  if (!mail || !password) {
+  if (!data.mail || !data.password) {
       res.status(404)
       res.json({success: false, message: "Mail || Password is blank"})
       res.end()
       return
   }
 
+  if (data.img) {
+    if (data.img.contentType !== "image/png" || data.img.contentType !== "image/jpeg") {
+      res.status(403)
+      res.json({success: false, message: 'Wrong Content-Type Image'})
+      res.end()
+      return
+    }
+    data.img.buffer = Buffer(data.img.buffer, 'base64')
+  }
+
   try {
-    const user = await User.findOne({mail})
+    const user = await User.findOne({mail: data.mail})
     if (user) {
       res.status(409)
       res.json({success: false, message: 'User already in the DB'})
       res.end()
       return
     }
-    const newUser = new User(req.body)
+    const newUser = new User(data)
     await newUser.save()
     res.json({success: true, message: "Try to login now motherfucker"})
     res.end()
@@ -142,7 +151,16 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   const { userId, update } = req.body
 
-  console.log('YOoooOOoloOOoOooO');
+
+  if (update.img) {
+    if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
+      res.status(403)
+      res.json({success: false, message: 'Wrong Content-Type Image'})
+      res.end()
+      return
+    }
+    update.img.buffer = Buffer(update.img.buffer, 'base64')
+  }
 
   try {
     const user = await User.findByIdAndUpdate(userId, update, {
@@ -575,7 +593,6 @@ exports.biketrack = async (req, res) => {
     let updatedtracker
 
     if ((coordinates[0] === -150.0) && (coordinates[1] === 80.0)) {
-      console.log('CHHHHHHOOOOOCCCCCCC');
       const choc = {
         timestamp: Date(time),
         checked: false,
@@ -592,7 +609,6 @@ exports.biketrack = async (req, res) => {
       const updated = Date.now()
       updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {choc: chocArray, updated}, {new: true})
     } else if ((coordinates[0] === -150.0) && (coordinates[1] === -62.0)) {
-      console.log('BBBBAAAATTTTEEEERRRRRYYYYY');
       const battery = {
         pourcentage: coordinates[2] * 100 / 3.7,
         timestamp: Date(time),
