@@ -249,6 +249,16 @@ exports.addBike = async (req, res) => {
     return
   }
 
+  if (bikeInfo.img) {
+    if (bikeInfo.img.contentType !== "image/png" || bikeInfo.img.contentType !== "image/jpeg") {
+      res.status(403)
+      res.json({success: false, message: 'Wrong Content-Type Image'})
+      res.end()
+      return
+    }
+    bikeInfo.img.buffer = Buffer(bikeInfo.img.buffer, 'base64')
+  }
+
   try {
     const user = await User.findById(userId)
     if (!user) {
@@ -259,7 +269,6 @@ exports.addBike = async (req, res) => {
     }
 
     const newBike = await (new Bike(bikeInfo)).save()
-    // const newBike = new Bike({name: bikeInfo.name, color: bikeInfo.color, brand: bikeInfo.brand, tracker: bikeInfo.tracker})
     const bikeList = user.bikes
     bikeList.push(newBike)
 
@@ -312,6 +321,16 @@ exports.getBikeInfo = async (req, res) => {
 // router.patch('/bike/', updateBike)
 exports.updateBike = async (req, res) => {
   const { bikeId, update } = req.body
+
+  if (update.img) {
+    if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
+      res.status(403)
+      res.json({success: false, message: 'Wrong Content-Type Image'})
+      res.end()
+      return
+    }
+    update.img.buffer = Buffer(update.img.buffer, 'base64')
+  }
 
   try {
   const bike = await Bike.findByIdAndUpdate(bikeId, update, {new: true} )
