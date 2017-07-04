@@ -572,25 +572,64 @@ exports.biketrack = async (req, res) => {
     }
 
     const coordinates = [lngGPS, latGps, altGPS]
-    const locations = {
-      coordinates,
-      timestamp: Date(time),
-      snr,
-      station,
-      data,
-      avgSnr,
-      rssi,
-      seqNumber
+    let updatedtracker
+
+    if ((coordinates[0] === -150.0) && (coordinates[1] === 80.0)) {
+      console.log('CHHHHHHOOOOOCCCCCCC');
+      const choc = {
+        timestamp: time,
+        checked: false,
+        snr,
+        station,
+        data,
+        avgSnr,
+        rssi,
+        seqNumber
+      }
+
+      const chocArray = tracker.choc
+      chocArray.push(choc)
+      const updated = Date.now()
+      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {choc: chocArray, updated}, {new: true})
+    } else if ((coordinates[0] === -150.0) && (coordinates[1] === -62.0)) {
+      console.log('BBBBAAAATTTTEEEERRRRRYYYYY');
+      const battery = {
+        pourcentage: coordinates[2] * 100 / 3.7,
+        timestamp: time,
+        snr,
+        station,
+        data,
+        avgSnr,
+        rssi,
+        seqNumber
+      }
+
+      const batteryArray = tracker.battery
+      batteryArray.push(battery)
+      const updated = Date.now()
+      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {battery: batteryArray, updated}, {new: true})
+    } else {
+      const locations = {
+        coordinates,
+        timestamp: Date(time),
+        snr,
+        station,
+        data,
+        avgSnr,
+        rssi,
+        seqNumber
+      }
+      const locationsArray = tracker.locations
+
+      const updated = Date.now()
+
+      locationsArray.push(locations)
+
+      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated}, {new: true})
+
     }
-    const locationsArray = tracker.locations
 
-    const updated = Date.now()
 
-    console.log("Updated : ", updated);
-
-    locationsArray.push(locations)
-
-    let updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated}, {new: true})
 
     res.json({success: true, tracker: updatedtracker})
     res.end()

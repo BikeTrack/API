@@ -10,7 +10,7 @@ config.mongoURI = {
 };
 
 config.jwt = {
-  secret: "BikeTrackPowa !!!"
+  secret: new Buffer('EpitechPowa !!!', 'base64')
 }
 
 module.exports = config;

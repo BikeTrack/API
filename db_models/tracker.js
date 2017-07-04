@@ -13,11 +13,23 @@ const trackerSchema = new mongoose.Schema({
     },
     battery: [{
       pourcentage: Number,
-      timestamp: Date
+      timestamp: Date,
+      snr: String,
+      station: String,
+      data: String,
+      avgSnr: String,
+      rssi: String,
+      seqNumber: String
     }],
     choc: [{
       timestamp: Date,
-      checked: Boolean
+      checked: Boolean,
+      snr: String,
+      station: String,
+      data: String,
+      avgSnr: String,
+      rssi: String,
+      seqNumber: String
     }],
     locations: [{
       coordinates: [Number],
