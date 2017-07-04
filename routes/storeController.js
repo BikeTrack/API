@@ -672,13 +672,14 @@ exports.biketrack = async (req, res) => {
       }
 
       const locationsArray = tracker.locations
-      const batteryrArray = tracker.battery
+      locationsArray.push(locations)
+
+      const batteryArray = tracker.battery
+      batteryArray.push(battery)
+
       const updated = Date.now()
 
-      locationsArray.push(locations)
-      batteryrArray.push(battery)
-
-      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated, battery: batteryrArray}, {new: true})
+      updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated, battery: batteryArray}, {new: true})
 
     }
 
