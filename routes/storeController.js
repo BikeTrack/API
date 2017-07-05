@@ -149,7 +149,7 @@ exports.getProfile = async (req, res) => {
 
 // router.patch('/profile/', update)
 exports.updateProfile = async (req, res) => {
-  const { userId, update } = req.body
+  let { userId, update } = req.body
 
 
   if (update.img) {
@@ -162,8 +162,10 @@ exports.updateProfile = async (req, res) => {
     update.img.buffer = Buffer(update.img.buffer, 'base64')
   }
 
+  update.updated = Date.now()
+
   try {
-    const user = await User.findByIdAndUpdate(userId, update, {
+    const user = await User.findByIdAndUpdate(userId, update,  {
     new: true,
     runValidators: true,
     select: '-password'
@@ -320,7 +322,7 @@ exports.getBikeInfo = async (req, res) => {
 
 // router.patch('/bike/', updateBike)
 exports.updateBike = async (req, res) => {
-  const { bikeId, update } = req.body
+  let { bikeId, update } = req.body
 
   if (update.img) {
     if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
@@ -331,6 +333,8 @@ exports.updateBike = async (req, res) => {
     }
     update.img.buffer = Buffer(update.img.buffer, 'base64')
   }
+
+  update.updated = Date.now()
 
   try {
   const bike = await Bike.findByIdAndUpdate(bikeId, update, {new: true} )
