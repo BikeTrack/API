@@ -23,24 +23,24 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^1.0.2",
-    "body-parser": "^1.15.2",
-    "cors": "^2.8.1",
-    "debug": "^2.6.0",
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
+    "debug": "^2.6.8",
     "dotenv": "^4.0.0",
-    "express": "^4.14.0",
+    "express": "^4.15.3",
     "file-stream-rotator": "0.1.0",
-    "helmet": "^3.3.0",
-    "jsonwebtoken": "^7.2.1",
+    "helmet": "^3.6.1",
+    "jsonwebtoken": "^7.4.1",
     "lodash": "^4.17.4",
-    "mongoose": "^4.11.0",
-    "morgan": "^1.7.0",
-    "shortid": "^2.2.6",
-    "uuid": "^3.0.1"
+    "mongoose": "^4.11.1",
+    "morgan": "^1.8.2",
+    "shortid": "^2.2.8",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "chai": "^4.0.2",
     "chai-http": "^3.0.0",
-    "mocha": "^3.2.0",
-    "request": "^2.79.0"
+    "mocha": "^3.4.2",
+    "request": "^2.81.0"
   }
 }
