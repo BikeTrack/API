@@ -6,6 +6,12 @@ const User = mongoose.model('User')
 const Bike = mongoose.model('Bike')
 const Tracker = mongoose.model('Tracker')
 
+/* TODO : Split by USER/BIKE/TRACKER files
+//      : Made a unique func to handle async error
+//      : Change the update routes to put plain object with needed field instead of an update object wintin all the fields
+//      : Build a route to handle an array of bikes
+*/
+
 
 // Test
 exports.test = (req, res) => {
@@ -33,12 +39,12 @@ exports.signup = async (req, res) => {
   }
 
   if (data.img) {
-    if (data.img.contentType !== "image/png" || data.img.contentType !== "image/jpeg") {
-      res.status(403)
-      res.json({success: false, message: 'Wrong Content-Type Image'})
-      res.end()
-      return
-    }
+    // if (data.img.contentType !== "image/png" || data.img.contentType !== "image/jpeg") {
+    //   res.status(403)
+    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.end()
+    //   return
+    // }
     data.img.buffer = Buffer(data.img.buffer, 'base64')
   }
 
@@ -153,12 +159,12 @@ exports.updateProfile = async (req, res) => {
 
 
   if (update.img) {
-    if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
-      res.status(403)
-      res.json({success: false, message: 'Wrong Content-Type Image'})
-      res.end()
-      return
-    }
+    // if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
+    //   res.status(403)
+    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.end()
+    //   return
+    // }
     update.img.buffer = Buffer(update.img.buffer, 'base64')
   }
 
@@ -252,12 +258,12 @@ exports.addBike = async (req, res) => {
   }
 
   if (bikeInfo.img) {
-    if (bikeInfo.img.contentType !== "image/png" || bikeInfo.img.contentType !== "image/jpeg") {
-      res.status(403)
-      res.json({success: false, message: 'Wrong Content-Type Image'})
-      res.end()
-      return
-    }
+    // if (bikeInfo.img.contentType !== "image/png" || bikeInfo.img.contentType !== "image/jpeg") {
+    //   res.status(403)
+    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.end()
+    //   return
+    // }
     bikeInfo.img.buffer = Buffer(bikeInfo.img.buffer, 'base64')
   }
 
@@ -325,12 +331,12 @@ exports.updateBike = async (req, res) => {
   let { bikeId, update } = req.body
 
   if (update.img) {
-    if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
-      res.status(403)
-      res.json({success: false, message: 'Wrong Content-Type Image'})
-      res.end()
-      return
-    }
+    // if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
+    //   res.status(403)
+    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.end()
+    //   return
+    // }
     update.img.buffer = Buffer(update.img.buffer, 'base64')
   }
 
@@ -684,7 +690,6 @@ exports.biketrack = async (req, res) => {
       const updated = Date.now()
 
       updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {locations: locationsArray, updated, battery: batteryArray}, {new: true})
-
     }
 
 
