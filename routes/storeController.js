@@ -10,6 +10,7 @@ const Tracker = mongoose.model('Tracker')
 //      : Made a unique func to handle async error
 //      : Change the update routes to put plain object with needed field instead of an update object wintin all the fields
 //      : Build a route to handle an array of bikes
+//      : Change the non GET route to match with GET route with params for consistency.
 */
 
 
