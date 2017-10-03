@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 const shortid = require('shortid');
 
 const trackerSchema = new mongoose.Schema({
-    _id: {type: String, 'default': shortid.generate}, // === device in the data receive
+  _id: {
+    type: String,
+    'default': shortid.generate
+    },
     created: {
         type: Date,
         default: Date.now
@@ -57,7 +60,7 @@ const trackerSchema = new mongoose.Schema({
         // seqNumber: String // the sequence number of the message if available
     //   }],
     // }
-  })
+}, { runSettersOnQuery: true })
 
 trackerSchema.index({ locations: '2dsphere' })
 

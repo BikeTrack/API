@@ -2,7 +2,6 @@ const express       = require('express');
 const path          = require('path');
 const logger        = require('morgan');
 const bodyParser    = require('body-parser');
-// const http          = require('http');
 const mongoose      = require('mongoose');
 const helmet        = require('helmet');
 const cors          = require('cors');

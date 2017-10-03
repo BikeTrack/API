@@ -3,8 +3,7 @@ const shortid = require('shortid');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  _id: {
-    type: String,
+  _id: {type: String,
     'default': shortid.generate
   },
   created: {
@@ -29,7 +28,7 @@ const userSchema = new mongoose.Schema({
     type: String, // a refaire avec un type Date
     trim: true
   },
-  mail: {
+  email: {
     type: String,
     index: true,
     lowercase: true,
@@ -56,7 +55,7 @@ const userSchema = new mongoose.Schema({
     buffer: Buffer,
     contentType: String
   }
-})
+}, { runSettersOnQuery: true })
 
 userSchema.pre('save', function(next){
     const user = this

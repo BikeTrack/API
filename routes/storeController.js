@@ -1,25 +1,25 @@
-const mongoose = require('mongoose')
-const jwt = require('jsonwebtoken')
-const config = require('../config/')
-const bcrypt = require('bcrypt')
-const User = mongoose.model('User')
-const Bike = mongoose.model('Bike')
-const Tracker = mongoose.model('Tracker')
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const config = require("../config/");
+const bcrypt = require("bcrypt");
+const User = mongoose.model("User");
+const Bike = mongoose.model("Bike");
+const Tracker = mongoose.model("Tracker");
 
 /* TODO : Split by USER/BIKE/TRACKER files
 //      : Made a unique func to handle async error
 //      : Change the update routes to put plain object with needed field instead of an update object wintin all the fields
 //      : Build a route to handle an array of bikes
 //      : Change the non GET route to match with GET route with params for consistency.
+//      : Use express-validator pour des check des req
 */
 
 
 // Test
 exports.test = (req, res) => {
-    res.setHeader('Content-Type', 'application/json')
-    res.json({foo: 'bar'})
-}
-//
+    res.setHeader("Content-Type", "application/json");
+    res.json({foo: "bar", body: req.body});
+};
 
 
 /*////////////////////////////
@@ -28,65 +28,66 @@ exports.test = (req, res) => {
 //                          //
 */////////////////////////////
 
-// router.post('/signup', signup)
+// router.post("/signup", signup)
 exports.signup = async (req, res) => {
-  const data = req.body
+  const data = req.body;
+  
+  console.log('Test', data)
 
-  if (!data.mail || !data.password) {
-      res.status(404)
-      res.json({success: false, message: "Mail || Password is blank"})
-      res.end()
+  if (!data.email || !data.password) {
+      res.status(404);
+      res.json({success: false, message: "Mail || Password is blank"});
+      res.end();
       return
   }
 
   if (data.img) {
     // if (data.img.contentType !== "image/png" || data.img.contentType !== "image/jpeg") {
     //   res.status(403)
-    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.json({success: false, message: "Wrong Content-Type Image"})
     //   res.end()
     //   return
     // }
-    data.img.buffer = Buffer(data.img.buffer, 'base64')
+    data.img.buffer = Buffer(data.img.buffer, "base64");
   }
 
   try {
-    const user = await User.findOne({mail: data.mail})
+    const user = await User.findOne({email: data.email});
     if (user) {
-      res.status(409)
-      res.json({success: false, message: 'User already in the DB'})
-      res.end()
+      res.status(409);
+      res.json({success: false, message: "User already in the DB"});
+      res.end();
       return
     }
-    const newUser = new User(data)
-    await newUser.save()
-    res.json({success: true, message: "Try to login now motherfucker"})
-    res.end()
-    return
+    const newUser = new User(data);
+    await newUser.save();
+    res.json({success: true, message: "Try to login now motherfucker"});
+    res.end();
 
   } catch(e) {
-    res.status(400)
+    res.status(400);
     console.error(e);
-    res.json({success: false, e})
+    res.json({success: false, e});
     res.end()
   }
 }
 
-// router.post('/authenticate', login)
+// router.post("/authenticate", login)
 exports.login = async (req, res) => {
-  const { mail, password } = req.body
+  const { email, password } = req.body
 
-  if (!mail || !password) {
+  if (!email || !password) {
       res.status(404)
-      res.json({success: false, message: "mail || login blank"})
+      res.json({success: false, message: "email || password blank"})
       res.end()
       return
   }
 
   try {
-    const user = await User.findOne({mail})
+    const user = await User.findOne({email})
     if (!user) {
       res.status(401)
-      res.json({success: false, message: 'Authentication failed. User not found.'})
+      res.json({success: false, message: "Authentication failed. User not found."})
       res.end()
       return
     }
@@ -106,7 +107,7 @@ exports.login = async (req, res) => {
       // create a token
       const token = jwt.sign(user, config.jwt.secret, {
           expiresIn: "24h", // expires in 24 hours
-          algorithm: 'HS512'
+          algorithm: "HS512"
       });
       res.json({success: true, token: token, userId: user.id, message: "Take my lord, this present is for you and only you"})
       res.end()
@@ -128,7 +129,7 @@ exports.login = async (req, res) => {
 //                          //
 */////////////////////////////
 
-// router.get('/profile/:userId', getProfile)
+// router.get("/profile/:userId", getProfile)
 exports.getProfile = async (req, res) => {
   const { userId } = req.params
 
@@ -154,7 +155,7 @@ exports.getProfile = async (req, res) => {
   }
 }
 
-// router.patch('/profile/', update)
+// router.patch("/profile/", update)
 exports.updateProfile = async (req, res) => {
   let { userId, update } = req.body
 
@@ -162,11 +163,11 @@ exports.updateProfile = async (req, res) => {
   if (update.img) {
     // if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
     //   res.status(403)
-    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.json({success: false, message: "Wrong Content-Type Image"})
     //   res.end()
     //   return
     // }
-    update.img.buffer = Buffer(update.img.buffer, 'base64')
+    update.img.buffer = Buffer(update.img.buffer, "base64")
   }
 
   update.updated = Date.now()
@@ -175,7 +176,7 @@ exports.updateProfile = async (req, res) => {
     const user = await User.findByIdAndUpdate(userId, update,  {
     new: true,
     runValidators: true,
-    select: '-password'
+    select: "-password"
   }).exec()
 
     if (!user) {
@@ -196,7 +197,7 @@ exports.updateProfile = async (req, res) => {
   }
 }
 
-// router.delete('/profile/', deleteProfile)
+// router.delete("/profile/", deleteProfile)
 exports.deleteProfile = async (req, res) => {
   const { userId } = req.body
 
@@ -220,23 +221,23 @@ exports.deleteProfile = async (req, res) => {
 }
 
 // function authFacebook(req, res) {
-//   res.setHeader('Content-Type', 'application/json')
-//   res.json({ Test: '1234' })
+//   res.setHeader("Content-Type", "application/json")
+//   res.json({ Test: "1234" })
 // }
 //
 // function authGoogle(req, res) {
-//   res.setHeader('Content-Type', 'application/json')
-//   res.json({ Test: '1234' })
+//   res.setHeader("Content-Type", "application/json")
+//   res.json({ Test: "1234" })
 // }
 //
 // function addFacebook(req, res) {
-//   res.setHeader('Content-Type', 'application/json')
-//   res.json({ Test: '1234' })
+//   res.setHeader("Content-Type", "application/json")
+//   res.json({ Test: "1234" })
 // }
 //
 // function addGoogle(req, res) {
-//   res.setHeader('Content-Type', 'application/json')
-//   res.json({ Test: '1234' })
+//   res.setHeader("Content-Type", "application/json")
+//   res.json({ Test: "1234" })
 // }
 
 
@@ -247,13 +248,13 @@ exports.deleteProfile = async (req, res) => {
 //                          //
 */////////////////////////////
 
-// router.post('/bike', addBike)
+// router.post("/bike", addBike)
 exports.addBike = async (req, res) => {
   const { userId, bikeInfo } = req.body
 
   if (!bikeInfo.tracker || !userId) {
     res.status(401)
-    res.json({success: false, message: 'Wrong arguments in the request'})
+    res.json({success: false, message: "Wrong arguments in the request"})
     res.end()
     return
   }
@@ -261,11 +262,11 @@ exports.addBike = async (req, res) => {
   if (bikeInfo.img) {
     // if (bikeInfo.img.contentType !== "image/png" || bikeInfo.img.contentType !== "image/jpeg") {
     //   res.status(403)
-    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.json({success: false, message: "Wrong Content-Type Image"})
     //   res.end()
     //   return
     // }
-    bikeInfo.img.buffer = Buffer(bikeInfo.img.buffer, 'base64')
+    bikeInfo.img.buffer = Buffer(bikeInfo.img.buffer, "base64")
   }
 
   try {
@@ -297,7 +298,7 @@ exports.addBike = async (req, res) => {
   }
 }
 
-// router.get('/bike/:bikeId', getBikeInfo)
+// router.get("/bike/:bikeId", getBikeInfo)
 exports.getBikeInfo = async (req, res) => {
   const { bikeId } = req.params
 
@@ -327,18 +328,18 @@ exports.getBikeInfo = async (req, res) => {
   }
 }
 
-// router.patch('/bike/', updateBike)
+// router.patch("/bike/", updateBike)
 exports.updateBike = async (req, res) => {
   let { bikeId, update } = req.body
 
   if (update.img) {
     // if (update.img.contentType !== "image/png" || update.img.contentType !== "image/jpeg") {
     //   res.status(403)
-    //   res.json({success: false, message: 'Wrong Content-Type Image'})
+    //   res.json({success: false, message: "Wrong Content-Type Image"})
     //   res.end()
     //   return
     // }
-    update.img.buffer = Buffer(update.img.buffer, 'base64')
+    update.img.buffer = Buffer(update.img.buffer, "base64")
   }
 
   update.updated = Date.now()
@@ -366,7 +367,7 @@ exports.updateBike = async (req, res) => {
   }
 }
 
-// router.delete('/bike/', deleteBike)
+// router.delete("/bike/", deleteBike)
 exports.deleteBike = async (req, res) => {
   const { userId, bikeId } = req.body
 
@@ -422,7 +423,7 @@ exports.deleteBike = async (req, res) => {
 //                          //
 */////////////////////////////
 
-// router.post('/tracker', addTracker)
+// router.post("/tracker", addTracker)
 exports.addTracker = async (req, res) => {
   const { bikeId, trackerInfo } = req.body
 
@@ -456,7 +457,7 @@ exports.addTracker = async (req, res) => {
   }
 }
 
-// router.get('/tracker/:trackerId', storeController.addTracker)
+// router.get("/tracker/:trackerId", storeController.addTracker)
 exports.getTracker = async (req, res) => {
   const { trackerId } = req.params
 
@@ -486,7 +487,7 @@ exports.getTracker = async (req, res) => {
   }
 }
 
-// router.delete('/tracker/', deleteTracker)
+// router.delete("/tracker/", deleteTracker)
 exports.deleteTracker = async (req, res) => {
   const { bikeId, trackerId } = req.body
 
@@ -558,7 +559,7 @@ exports.deleteTracker = async (req, res) => {
   // })
 }
 
-// router.patch('/tracker/', updateTracker)
+// router.patch("/tracker/", updateTracker)
 exports.updateTracker = async (req, res) => {
   const { trackerId, gps } = req.body
 
@@ -576,7 +577,7 @@ exports.updateTracker = async (req, res) => {
     }
     res.json({
       success: true,
-      bike: tracker,
+      tracker,
       message: `Tracker updated`
     })
     res.end()
@@ -589,6 +590,34 @@ exports.updateTracker = async (req, res) => {
   }
 }
 
+// exports.felix = async (req,res) => {
+//   const {trackerId} = req.body
+//
+//   try {
+//     const tracker = await Tracker.findById(trackerId)
+//
+//     let locations = tracker.locations.slice(0,24)
+//
+//     const newTracker = await Tracker.findByIdAndUpdate(trackerId, {locations}, {new: true})
+//
+//
+//     res.json({
+//       success: true,
+//       tracker: tracker,
+//       message: `Tracker updated Felix Style`
+//     })
+//     res.end()
+//     return
+//
+//   } catch (e) {
+//     res.status(400)
+//     console.error(e);
+//     res.json({success: false, e})
+//     res.end()
+//   }
+//
+// }
+
 /*//////////////////////////////
 //                            //
 //  Function /biketrack route //
@@ -599,7 +628,7 @@ exports.biketrack = async (req, res) => {
 
   const {
     time,
-    device, // 7462C for Felix's Tracker
+    device, // 7462C for Felix"s Tracker
     snr,
     station,
     data,
@@ -616,7 +645,7 @@ exports.biketrack = async (req, res) => {
 
     if (!tracker) {
       tracker = await (new Tracker({_id: device})).save()
-      console.log('New tracker created');
+      console.log("New tracker created");
     }
 
     const coordinates = [lngGPS, latGps]
@@ -638,22 +667,6 @@ exports.biketrack = async (req, res) => {
       chocArray.push(choc)
       const updated = Date.now()
       updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {choc: chocArray, updated}, {new: true})
-    // } else if ((coordinates[0] === -150.0) && (coordinates[1] === -62.0)) {
-    //   const battery = {
-    //     pourcentage: coordinates[2] * 100 / 3.7,
-    //     timestamp: Date(time),
-    //     snr,
-    //     station,
-    //     data,
-    //     avgSnr,
-    //     rssi,
-    //     seqNumber
-    //   }
-    //
-    //   const batteryArray = tracker.battery
-    //   batteryArray.push(battery)
-    //   const updated = Date.now()
-    //   updatedtracker = await Tracker.findByIdAndUpdate(tracker.id, {battery: batteryArray, updated}, {new: true})
     } else {
       const locations = {
         coordinates,

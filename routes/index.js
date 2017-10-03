@@ -13,6 +13,8 @@ const storeController = require('./storeController');
 //Test
 router.get('/', storeController.test)
 
+// router.post('/felix', storeController.felix)
+
 /*//////////////////////////////
 //                            //
 //  Function /biketrack route //
