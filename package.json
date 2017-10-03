@@ -4,7 +4,8 @@
   "description": "BikeTrack API with test with BDD with Mocha/Chai",
   "main": "www/index.js",
   "scripts": {
-    "start": "nodemon ./www/index.js",
+    "dev": "nodemon ./www/index.js",
+    "start": "node ./www/index.js",
     "test": "mocha"
   },
   "engines": {
