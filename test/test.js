@@ -59,14 +59,14 @@ describe('\n => Test API Key', function() {
 
 describe('\n => Test if a user can register and login proprely', function() {
 
-    const mail = 'john_doe@biketrack.eu'
+    const email = 'john_doe@biketrack.eu'
     const password = 'qwerty123'
     let userId = ""
     let token = ""
 
     before(" => Delete User to DB if any at start\n", function() {
         User.findOneAndRemove({
-            'mail': mail
+            email
         }, err => {
             if (err)
                 return err
@@ -76,7 +76,7 @@ describe('\n => Test if a user can register and login proprely', function() {
 
     after(" => Delete User to DB if any at the end\n", function() {
         User.findOneAndRemove({
-            'mail': mail
+            email
         }, err => {
             if (err)
                 return err
@@ -86,27 +86,27 @@ describe('\n => Test if a user can register and login proprely', function() {
 
     describe('\n => Test /signup API route', function() {
         it(' -> shouldn\'t be able to log without a password\n', function(done) {
-            chai.request(server).post('/signup').set('Authorization', apiKey).send({'mail': mail, 'password': ""}).end((err, res) => {
+            chai.request(server).post('/signup').set('Authorization', apiKey).send({ email, 'password': ""}).end((err, res) => {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'Mail || Password is blank');
+                expect(res.body).to.have.property('message', 'email || Password is blank');
                 done()
             })
         })
 
-        it(' -> shouldn\'t be able to log without a mail\n', function(done) {
-            chai.request(server).post('/signup').set('Authorization', apiKey).send({'mail': "", 'password': password}).end((err, res) => {
+        it(' -> shouldn\'t be able to log without a email\n', function(done) {
+            chai.request(server).post('/signup').set('Authorization', apiKey).send({ email: "", 'password': password}).end((err, res) => {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'Mail || Password is blank');
+                expect(res.body).to.have.property('message', 'email || Password is blank');
                 done()
             })
         })
 
         it(' -> should signup for John Doe\n', function(done) {
-            chai.request(server).post('/signup').set('Authorization', apiKey).send({'mail': mail, 'password': password}).end((err, res) => {
+            chai.request(server).post('/signup').set('Authorization', apiKey).send({ email, 'password': password}).end((err, res) => {
                 expect(res).to.have.status(200)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', true);
@@ -116,7 +116,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         })
 
         it(' -> should not be able to signup again with the same email\n', function(done) {
-            chai.request(server).post('/signup').set('Authorization', apiKey).send({'mail': mail, 'password': password}).end((err, res) => {
+            chai.request(server).post('/signup').set('Authorization', apiKey).send({ email, 'password': password}).end((err, res) => {
                 expect(res).to.have.status(409)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
@@ -129,28 +129,28 @@ describe('\n => Test if a user can register and login proprely', function() {
 
     describe('\n => Test /authenticate route', function() {
 
-        it(' -> shouldn\'t be able to login without a mail', function(done) {
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': "", 'password': password}).end((err, res) => {
+        it(' -> shouldn\'t be able to login without a email', function(done) {
+            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'email': "", 'password': password}).end((err, res) => {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'mail || login blank');
+                expect(res.body).to.have.property('message', 'email || login blank');
                 done()
             })
         })
 
         it(' -> shouldn\'t be able to login without a password', function(done) {
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': mail, 'password': ""}).end((err, res) => {
+            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'email': email, 'password': ""}).end((err, res) => {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'mail || login blank');
+                expect(res.body).to.have.property('message', 'email || login blank');
                 done()
             })
         })
 
-        it(' -> shouldn\'t be able to log an unknown mail', function(done) {
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': "yolo@epitech.eu", 'password': password}).end((err, res) => {
+        it(' -> shouldn\'t be able to log an unknown email', function(done) {
+            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'email': "yolo@epitech.eu", 'password': password}).end((err, res) => {
                 expect(res).to.have.status(401);
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
@@ -160,7 +160,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         })
 
         it(' -> shouldn\'t be able to log a wrong password', function(done) {
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': mail, 'password': "password"}).end((err, res) => {
+            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'email': email, 'password': "password"}).end((err, res) => {
                 expect(res).to.have.status(401);
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
@@ -170,7 +170,7 @@ describe('\n => Test if a user can register and login proprely', function() {
         })
 
         it(' -> should login with John Doe credential\n', function(done) {
-            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'mail': mail, 'password': password}).end((err, res) => {
+            chai.request(server).post('/authenticate').set('Authorization', apiKey).send({'email': email, 'password': password}).end((err, res) => {
                 userId = res.body.userId
                 token = res.body.token
                 expect(res).to.have.status(200)
@@ -258,7 +258,7 @@ describe('\n => Test if a user can register and login proprely', function() {
 describe('\n => Test /bike/* route', function() {
 
     const userTest = new User({
-      mail: 'bike@biketrack.eu',
+      email: 'bike@biketrack.eu',
       password: 'qwerty123'
     })
     const bikeTest = {
@@ -282,7 +282,7 @@ describe('\n => Test /bike/* route', function() {
         .post('/authenticate')
         .set('Authorization', apiKey)
         .send({
-          'mail': userTest.mail,
+          'email': userTest.email,
           'password': 'qwerty123' // /!\ But WTF userTest.password isn't working !!!!!!!!
         })
         .end((err, res) => {
@@ -293,7 +293,7 @@ describe('\n => Test /bike/* route', function() {
     })
 
     after("Delete fake User to DB", function(done) {
-        User.findOneAndRemove(userTest.mail, err => {
+        User.findOneAndRemove(userTest.email, err => {
             if (err)
                 return done(err)
             console.log('User deleted from /bike test');
@@ -382,7 +382,7 @@ describe('\n => Test /bike/* route', function() {
 // describe('\n => Test /tracker/* route', function() {
 //
 //   const userTest = new User({
-//     mail: 'tracker@biketrack.eu',
+//     email: 'tracker@biketrack.eu',
 //     password: 'qwerty123'
 //   })
 //   const bikeTest = new Bike({
@@ -406,7 +406,7 @@ describe('\n => Test /bike/* route', function() {
 //       .post('/authenticate')
 //       .set('Authorization', apiKey)
 //       .send({
-//         'mail': userTest.mail,
+//         'email': userTest.email,
 //         'password': 'qwerty123' // /!\ But WTF userTest.password isn't working !!!!!!!!
 //       })
 //       .end((err, res) => {

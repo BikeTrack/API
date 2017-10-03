@@ -36,7 +36,7 @@ exports.signup = async (req, res) => {
 
   if (!data.email || !data.password) {
       res.status(404);
-      res.json({success: false, message: "Mail || Password is blank"});
+      res.json({success: false, message: "email || Password is blank"});
       res.end();
       return
   }
