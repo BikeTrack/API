@@ -16,12 +16,10 @@ const userSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    lowercase: true,
     trim: true
   },
   lastname: {
     type: String,
-    lowercase: true,
     trim: true
   },
   dob: {

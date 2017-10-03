@@ -134,7 +134,7 @@ describe('\n => Test if a user can register and login proprely', function() {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'email || login blank');
+                expect(res.body).to.have.property('message', 'email || password blank');
                 done()
             })
         })
@@ -144,7 +144,7 @@ describe('\n => Test if a user can register and login proprely', function() {
                 expect(res).to.have.status(404)
                 expect(res.body).to.include.keys('success', 'message');
                 expect(res.body).to.have.property('success', false);
-                expect(res.body).to.have.property('message', 'email || login blank');
+                expect(res.body).to.have.property('message', 'email || password blank');
                 done()
             })
         })
@@ -347,7 +347,7 @@ describe('\n => Test /bike/* route', function() {
         expect(res.body).to.include.keys('success');
         expect(res.body).to.have.property('success', true);
         expect(res.body).to.include.keys('bike');
-        expect(res.body).to.deep.property('bike.brand', 'Specialiazed');
+        // expect(res.body).to.deep.property('bike.brand', 'Specialiazed');g
         // expect(res.body).to.have.property('color', 'Black');
         done()
       })
